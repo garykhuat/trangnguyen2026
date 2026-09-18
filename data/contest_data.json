@@ -1,0 +1,674 @@
+{
+  "contestants": [
+    {
+      "id": "TS01",
+      "sbd": "SBD-001",
+      "name": "Nguyễn Văn Test",
+      "title": "Chuyên viên Phân tích Dữ liệu Cao cấp",
+      "department": "Khối Phân tích Kinh doanh (BI)",
+      "region": "Khu vực Miền Bắc",
+      "regionId": 1,
+      "avatar": "data:image/jpeg;base64,/9j/4AAQSkZJRg==",
+      "bio": "5 năm kinh nghiệm phân tích dữ liệu lớn và tối ưu hóa hệ thống ERP toàn tập đoàn. Đạt danh hiệu Nhân viên xuất sắc năm 2025.",
+      "strengths": [
+        "Tư duy dữ liệu",
+        "Thuyết trình mạch lạc",
+        "Giải quyết vấn đề"
+      ],
+      "motto": "Biến dữ liệu thô thành giá trị thực tiễn.",
+      "hidden": false
+    },
+    {
+      "id": "TS02",
+      "sbd": "SBD-002",
+      "name": "Trần Thị Bích Ngọc",
+      "title": "Trưởng nhóm Phát triển Sản phẩm",
+      "department": "Phòng Nghiên cứu & Đổi mới Sáng tạo",
+      "region": "Khu vực Miền Bắc",
+      "regionId": 1,
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80",
+      "bio": "Dẫn dắt thành công 3 dự án số hóa quy trình làm việc cho khối văn phòng với hơn 2000 người sử dụng hàng ngày.",
+      "strengths": [
+        "Quản lý dự án",
+        "Sáng tạo đổi mới",
+        "Lãnh đạo nhóm"
+      ],
+      "motto": "Khởi đầu từ nhu cầu người dùng, kết thúc bằng sự hài lòng.",
+      "hidden": false
+    },
+    {
+      "id": "TS03",
+      "sbd": "SBD-003",
+      "name": "Lê Hoàng Long",
+      "title": "Kỹ sư Giải pháp Cloud & DevOps",
+      "department": "Trung tâm Hạ tầng Công nghệ",
+      "region": "Khu vực Miền Bắc",
+      "regionId": 1,
+      "avatar": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&auto=format&fit=crop&q=80",
+      "bio": "Chuyên gia xây dựng hệ sinh thái đám mây chịu tải cao. Tác giả nhiều bài viết kỹ thuật nội bộ được đánh giá cao.",
+      "strengths": [
+        "Kiến trúc hệ thống",
+        "Tự động hóa",
+        "Bảo mật thông tin"
+      ],
+      "motto": "Hạ tầng vững chắc là bệ phóng cho mọi đổi mới.",
+      "hidden": false
+    },
+    {
+      "id": "TS04",
+      "sbd": "SBD-004",
+      "name": "Hoàng Minh Châu",
+      "title": "Giám sát Vận hành Cảng & Logistics",
+      "department": "Chi nhánh Hải Phòng",
+      "region": "Khu vực Miền Trung",
+      "regionId": 2,
+      "avatar": "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&auto=format&fit=crop&q=80",
+      "bio": "Quản lý chuỗi cung ứng khu vực duyên hải phía Bắc, tiết kiệm 15% chi phí lưu kho nhờ sáng kiến điều phối thời gian thực.",
+      "strengths": [
+        "Tối ưu vận hành",
+        "Đàm phán",
+        "Quản trị rủi ro"
+      ],
+      "motto": "Hiệu quả là tiêu chuẩn duy nhất của sự chính xác.",
+      "hidden": false
+    },
+    {
+      "id": "TS05",
+      "sbd": "SBD-005",
+      "name": "Vũ Đức Thịnh",
+      "title": "Kỹ sư Cơ điện & Bảo trì Tự động",
+      "department": "Nhà máy Quảng Ninh",
+      "region": "Khu vực Miền Trung",
+      "regionId": 2,
+      "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&auto=format&fit=crop&q=80",
+      "bio": "Thiết kế hệ thống cảm biến giám sát thông minh cho dây chuyền sản xuất, giảm 40% thời gian chết của máy móc.",
+      "strengths": [
+        "Tự động hóa công nghiệp",
+        "Kiên trì",
+        "Phản ứng nhanh"
+      ],
+      "motto": "Không ngừng cải tiến, dù là chi tiết nhỏ nhất.",
+      "hidden": false
+    },
+    {
+      "id": "TS06",
+      "sbd": "SBD-006",
+      "name": "Đặng Thu Trang",
+      "title": "Quản lý Quan hệ Khách hàng Doanh nghiệp",
+      "department": "Khối Bán hàng Khu vực 2",
+      "region": "Khu vực Miền Trung",
+      "regionId": 2,
+      "avatar": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&auto=format&fit=crop&q=80",
+      "bio": "Đạt doanh số kỷ lục quý 4/2025, xây dựng mối quan hệ đối tác bền vững với hơn 50 tập đoàn logistics lớn.",
+      "strengths": [
+        "Giao tiếp chiến lược",
+        "Thấu hiểu đối tác",
+        "Truyền cảm hứng"
+      ],
+      "motto": "Khách hàng thành công là thước đo giá trị của chúng ta.",
+      "hidden": false
+    },
+    {
+      "id": "TS07",
+      "sbd": "SBD-007",
+      "name": "Phan Quốc Đạt",
+      "title": "Kỹ sư Trí tuệ Nhân tạo (AI Engineer)",
+      "department": "Trung tâm Nghiên cứu AI Đà Nẵng",
+      "region": "Khu vực Đông TP.HCM",
+      "regionId": 3,
+      "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop&q=80",
+      "bio": "Phát triển mô hình trợ lý ảo hỗ trợ nội bộ xử lý hơn 10.000 yêu cầu mỗi tuần. Thủ khoa đầu vào kỳ tuyển dụng tài năng trẻ.",
+      "strengths": [
+        "Machine Learning",
+        "Tư duy thuật toán",
+        "Nhiệt huyết"
+      ],
+      "motto": "Công nghệ phục vụ con người, khai phóng tiềm năng.",
+      "hidden": false
+    },
+    {
+      "id": "TS08",
+      "sbd": "SBD-008",
+      "name": "Ngô Thanh Hương",
+      "title": "Chuyên viên Quản trị Trải nghiệm Khách hàng",
+      "department": "Khối Dịch vụ Khách hàng Miền Trung",
+      "region": "Khu vực Đông TP.HCM",
+      "regionId": 3,
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&auto=format&fit=crop&q=80",
+      "bio": "Chủ nhân giải thưởng Ý tưởng dịch vụ xuất sắc năm 2025 với hệ thống khảo sát cảm xúc khách hàng thời gian thực.",
+      "strengths": [
+        "Thấu cảm khách hàng",
+        "Thiết kế quy trình",
+        "Thuyết phục"
+      ],
+      "motto": "Mỗi điểm chạm là một cơ hội để tạo ấn tượng tốt đẹp.",
+      "hidden": false
+    },
+    {
+      "id": "TS09",
+      "sbd": "SBD-009",
+      "name": "Bùi Đình Trọng",
+      "title": "Kiến trúc sư Giải pháp Phần mềm",
+      "department": "Đơn vị Sản phẩm Số",
+      "region": "Khu vực Đông TP.HCM",
+      "regionId": 3,
+      "avatar": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&auto=format&fit=crop&q=80",
+      "bio": "Hơn 7 năm kinh nghiệm thiết kế kiến trúc microservices chịu tải cao, điều phối nhóm kỹ sư hơn 15 thành viên.",
+      "strengths": [
+        "Kiến trúc phần mềm",
+        "Tư duy hệ thống",
+        "Bình tĩnh giải quyết khủng hoảng"
+      ],
+      "motto": "Mã nguồn sạch, kiến trúc chuẩn, vận hành thông suốt.",
+      "hidden": false
+    },
+    {
+      "id": "TS10",
+      "sbd": "SBD-010",
+      "name": "Lý Gia Bảo",
+      "title": "Chuyên viên Quản trị Nguồn Nhân lực",
+      "department": "Phòng Nhân sự Vùng Tây Nguyên",
+      "region": "Khu vực Tây TP.HCM",
+      "regionId": 4,
+      "avatar": "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=400&auto=format&fit=crop&q=80",
+      "bio": "Xây dựng chương trình gắn kết nhân viên vùng xa, nâng tỷ lệ giữ chân nhân sự lên 92% trong năm 2025.",
+      "strengths": [
+        "Lắng nghe thấu hiểu",
+        "Tổ chức sự kiện",
+        "Xây dựng văn hóa"
+      ],
+      "motto": "Con người là tài sản quý giá nhất của tổ chức.",
+      "hidden": true
+    },
+    {
+      "id": "TS11",
+      "sbd": "SBD-011",
+      "name": "Dương Mỹ Hạnh",
+      "title": "Kế toán Trưởng Chi nhánh Nha Trang",
+      "department": "Khối Tài chính Kế toán",
+      "region": "Khu vực Tây TP.HCM",
+      "regionId": 4,
+      "avatar": "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&auto=format&fit=crop&q=80",
+      "bio": "Hoàn thành số hóa 100% chứng từ tài chính kế toán khu vực, minh bạch hóa dòng tiền và kiểm soát ngân sách chặt chẽ.",
+      "strengths": [
+        "Quản trị tài chính",
+        "Chi tiết cẩn trọng",
+        "Pháp lý doanh nghiệp"
+      ],
+      "motto": "Chính trực, minh bạch và hiệu quả.",
+      "hidden": true
+    },
+    {
+      "id": "TS12",
+      "sbd": "SBD-012",
+      "name": "Phạm Hữu Nghĩa",
+      "title": "Trưởng phòng Kinh doanh Dự án",
+      "department": "Khối Dự án Năng lượng Xanh",
+      "region": "Khu vực Tây TP.HCM",
+      "regionId": 4,
+      "avatar": "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=400&auto=format&fit=crop&q=80",
+      "bio": "Triển khai thành công 12 dự án hợp tác năng lượng tái tạo tại Đắk Lắk và Gia Lai với tổng giá trị hơn 50 tỷ đồng.",
+      "strengths": [
+        "Chiến lược đàm phán",
+        "Tầm nhìn thị trường",
+        "Bản lĩnh thương trường"
+      ],
+      "motto": "Nắm bắt cơ hội, biến thách thức thành thắng lợi.",
+      "hidden": true
+    },
+    {
+      "id": "TS13",
+      "sbd": "SBD-013",
+      "name": "Võ Mai Anh",
+      "title": "Chuyên gia Thiết kế Trải nghiệm (Lead UX)",
+      "department": "Khối Công nghệ Thông tin TP.HCM",
+      "region": "Khu vực Miền Tây",
+      "regionId": 5,
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80",
+      "bio": "Người chủ trì làm mới toàn diện giao diện ứng dụng di động nội bộ và khách hàng, tăng 45% chỉ số NPS.",
+      "strengths": [
+        "Thiết kế Design System",
+        "Nghiên cứu người dùng",
+        "Sáng tạo"
+      ],
+      "motto": "Đơn giản là đỉnh cao của sự tinh tế.",
+      "hidden": true
+    },
+    {
+      "id": "TS14",
+      "sbd": "SBD-014",
+      "name": "Lê Thành Đạt",
+      "title": "Kỹ sư An ninh Mạng & Bảo mật Dữ liệu",
+      "department": "Trung tâm Bảo mật Thông tin",
+      "region": "Khu vực Miền Tây",
+      "regionId": 5,
+      "avatar": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&auto=format&fit=crop&q=80",
+      "bio": "Đạt chứng chỉ CISSP, bảo vệ an toàn 100% cho hệ sinh thái giao dịch tài chính trước các cuộc tấn công mạng.",
+      "strengths": [
+        "Bảo mật hệ thống",
+        "Ứng cứu sự cố",
+        "Tư duy phòng thủ"
+      ],
+      "motto": "An toàn thông tin là nền tảng của niềm tin.",
+      "hidden": true
+    },
+    {
+      "id": "TS15",
+      "sbd": "SBD-015",
+      "name": "Huỳnh Khánh Vân",
+      "title": "Quản lý Sản phẩm Kỹ thuật số (Product Manager)",
+      "department": "Khối Công nghệ TP.HCM",
+      "region": "Khu vực Miền Tây",
+      "regionId": 5,
+      "avatar": "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?w=400&auto=format&fit=crop&q=80",
+      "bio": "Định hình chiến lược lộ trình sản phẩm số, kết nối hiệu quả giữa khối nghiệp vụ kinh doanh và đội ngũ kỹ thuật.",
+      "strengths": [
+        "Chiến lược sản phẩm",
+        "Phân tích định lượng",
+        "Khả năng kết nối"
+      ],
+      "motto": "Tập trung vào giá trị cốt lõi mang lại cho cộng đồng.",
+      "hidden": true
+    },
+    {
+      "id": "TS16",
+      "sbd": "SBD-016",
+      "name": "Đặng Tuấn Kiệt",
+      "title": "Trưởng bộ phận Quản lý Chuỗi Cung ứng",
+      "department": "Khối Vận hành Phía Nam",
+      "region": "Trung tâm kinh doanh & AMC",
+      "regionId": 6,
+      "avatar": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&auto=format&fit=crop&q=80",
+      "bio": "Tối ưu hóa hành trình giao nhận hàng hóa liên tỉnh, giảm 20% thời gian giao hàng và tăng 98% tỷ lệ đúng hẹn.",
+      "strengths": [
+        "Phân tích chuỗi cung ứng",
+        "Điều phối nhân sự",
+        "Tối ưu chi phí"
+      ],
+      "motto": "Nhanh chóng, an toàn và chuẩn xác trong từng nhịp thở.",
+      "hidden": true
+    },
+    {
+      "id": "TS17",
+      "sbd": "SBD-017",
+      "name": "Nguyễn Thị Hải Yến",
+      "title": "Chuyên viên Đảm bảo Chất lượng (QA Lead)",
+      "department": "Phòng Quản lý Chất lượng Tiêu chuẩn",
+      "region": "Trung tâm kinh doanh & AMC",
+      "regionId": 6,
+      "avatar": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&auto=format&fit=crop&q=80",
+      "bio": "Chủ trì đánh giá và đạt chứng nhận ISO 9001:2025 cho toàn bộ 8 trung tâm phân phối khu vực phía Nam.",
+      "strengths": [
+        "Kiểm soát quy trình",
+        "Tỉ mỉ chi tiết",
+        "Tư duy logic"
+      ],
+      "motto": "Chất lượng là danh dự của tổ chức.",
+      "hidden": true
+    },
+    {
+      "id": "TS18",
+      "sbd": "SBD-018",
+      "name": "Cao Minh Trí",
+      "title": "Kỹ sư Vận hành Hạ tầng Thông minh",
+      "department": "Trung tâm Vận hành Tự động",
+      "region": "Trung tâm kinh doanh & AMC",
+      "regionId": 6,
+      "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop&q=80",
+      "bio": "Tiên phong ứng dụng Internet vạn vật (IoT) trong quản lý kho thông minh, tiết kiệm 1,2 tỷ đồng chi phí điện năng.",
+      "strengths": [
+        "Công nghệ IoT",
+        "Bảo trì dự đoán",
+        "Sáng kiến xanh"
+      ],
+      "motto": "Công nghệ thông minh cho cuộc sống bền vững.",
+      "hidden": true
+    },
+    {
+      "id": "TS19",
+      "sbd": "SBD-019",
+      "name": "Mai Thanh Tùng",
+      "title": "Giám đốc Vùng Đồng Bằng Sông Cửu Long",
+      "department": "Chi nhánh Cần Thơ",
+      "region": "Liên quân Kinh doanh & Giám sát",
+      "regionId": 7,
+      "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&auto=format&fit=crop&q=80",
+      "bio": "Xây dựng mạng lưới phân phối trải dài 13 tỉnh Tây Nam Bộ với tốc độ tăng trưởng doanh số 35% liên tục 2 năm.",
+      "strengths": [
+        "Lãnh đạo truyền cảm hứng",
+        "Mở rộng thị trường",
+        "Chiến lược bán lẻ"
+      ],
+      "motto": "Đoàn kết là sức mạnh, kiên định tạo thành công.",
+      "hidden": true
+    },
+    {
+      "id": "TS20",
+      "sbd": "SBD-020",
+      "name": "Lê Phương Thảo",
+      "title": "Chuyên viên Truyền thông & Thương hiệu",
+      "department": "Phòng Marketing Chi nhánh Miền Tây",
+      "region": "Liên quân Kinh doanh & Giám sát",
+      "regionId": 7,
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80",
+      "bio": "Tổ chức chuỗi sự kiện gắn kết cộng đồng nông nghiệp sạch thu hút hơn 15.000 người tham dự tại các tỉnh miền Tây.",
+      "strengths": [
+        "Sáng tạo nội dung",
+        "Quan hệ công chúng",
+        "Nhiệt huyết cộng đồng"
+      ],
+      "motto": "Mỗi câu chuyện hay đều chạm tới trái tim con người.",
+      "hidden": true
+    },
+    {
+      "id": "TS21",
+      "sbd": "SBD-021",
+      "name": "Trương Vĩnh Phúc",
+      "title": "Kỹ sư Nông nghiệp Công nghệ cao",
+      "department": "Trung tâm Phát triển Nông nghiệp An Giang",
+      "region": "Liên quân Kinh doanh & Giám sát",
+      "regionId": 7,
+      "avatar": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&auto=format&fit=crop&q=80",
+      "bio": "Ứng dụng AI vào phân tích đất và dự báo dịch hại mùa màng, giúp đối tác nông dân tăng 25% năng suất thu hoạch.",
+      "strengths": [
+        "Nông nghiệp chính xác",
+        "Nghiên cứu ứng dụng",
+        "Tâm huyết nông thôn"
+      ],
+      "motto": "Đổi mới trên từng tấc đất quê hương.",
+      "hidden": true
+    },
+    {
+      "id": "TS22",
+      "sbd": "SBD-022",
+      "name": "Đoàn Kim Oanh",
+      "title": "Quản lý Hợp tác Quốc tế & M&A",
+      "department": "Khối Chiến lược Toàn Cầu",
+      "region": "Liên quân Hỗ trợ & Đơn vị không thuộc Khối",
+      "regionId": 8,
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&auto=format&fit=crop&q=80",
+      "bio": "Thông thạo tiếng Anh và tiếng Nhật, kết nối thành công 3 thỏa thuận hợp tác chuyển giao công nghệ từ các đối tác Tokyo và Singapore.",
+      "strengths": [
+        "Đàm phán đa văn hóa",
+        "Thẩm định thương vụ",
+        "Tư duy toàn cầu"
+      ],
+      "motto": "Vươn tầm thế giới với bản sắc Việt Nam vững vàng.",
+      "hidden": true
+    },
+    {
+      "id": "TS23",
+      "sbd": "SBD-023",
+      "name": "Trịnh Hoàng Bách",
+      "title": "Chuyên gia Pháp chế & Tuân thủ Quốc tế",
+      "department": "Ban Pháp chế Doanh nghiệp",
+      "region": "Liên quân Hỗ trợ & Đơn vị không thuộc Khối",
+      "regionId": 8,
+      "avatar": "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=400&auto=format&fit=crop&q=80",
+      "bio": "Thạc sĩ Luật Quốc tế từ Đại học Melbourne, cố vấn pháp lý cho các dự án xuyên biên giới và phòng ngừa rủi ro pháp lý.",
+      "strengths": [
+        "Luật thương mại quốc tế",
+        "Tư duy sắc bén",
+        "Quản trị rủi ro"
+      ],
+      "motto": "Tuân thủ là lá chắn kiên cố cho sự phát triển bền vững.",
+      "hidden": true
+    },
+    {
+      "id": "TS24",
+      "sbd": "SBD-024",
+      "name": "Vũ Thùy Dương",
+      "title": "Điều phối viên Dự án Đối tác Chiến lược",
+      "department": "Trung tâm Phát triển Hợp tác Toàn cầu",
+      "region": "Liên quân Hỗ trợ & Đơn vị không thuộc Khối",
+      "regionId": 8,
+      "avatar": "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&auto=format&fit=crop&q=80",
+      "bio": "Gương mặt trẻ tiêu biểu tập đoàn năm 2025, kết nối điều phối các chương trình trao đổi nhân sự quốc tế.",
+      "strengths": [
+        "Năng động sáng tạo",
+        "Giao tiếp ngoại giao",
+        "Tổ chức sự kiện quốc tế"
+      ],
+      "motto": "Tận tâm xây nhịp cầu gắn kết muôn nơi.",
+      "hidden": true
+    }
+  ],
+  "judges": [
+    {
+      "id": "GK01",
+      "code": "GK01",
+      "name": "Giám Khảo Test",
+      "title": "Chủ tịch HĐGK",
+      "avatar": "data:image/jpeg;base64,/9j/4AAQSkZJRg=="
+    },
+    {
+      "id": "GK02",
+      "code": "GK02",
+      "name": "ThS. Lê Thu Hà",
+      "title": "Phó Trưởng BGK - Giám Đốc Nhân Sự",
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&auto=format&fit=crop&q=80"
+    },
+    {
+      "id": "GK03",
+      "code": "GK03",
+      "name": "Nguyễn Hoàng Nam",
+      "title": "Giám Khảo 3 - Giám Đốc Công Nghệ (CTO)",
+      "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80"
+    },
+    {
+      "id": "GK04",
+      "code": "GK04",
+      "name": "Phạm Mai Phương",
+      "title": "Giám Khảo 4 - Giám Đốc Vận Hành (COO)",
+      "avatar": "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=300&auto=format&fit=crop&q=80"
+    },
+    {
+      "id": "GK05",
+      "code": "GK05",
+      "name": "Đặng Quốc Bảo",
+      "title": "Giám Khảo 5 - Giám Đốc Tài Chính (CFO)",
+      "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&auto=format&fit=crop&q=80"
+    },
+    {
+      "id": "GK06",
+      "code": "GK06",
+      "name": "Vũ Khánh Linh",
+      "title": "Giám Khảo 6 - Trưởng Phòng Đào Tạo & Phát Triển",
+      "avatar": "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?w=300&auto=format&fit=crop&q=80"
+    },
+    {
+      "id": "GK07",
+      "code": "GK07",
+      "name": "Ngô Gia Huy",
+      "title": "Giám Khảo 7 - Cố Vấn Chuyển Đổi Số",
+      "avatar": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=300&auto=format&fit=crop&q=80"
+    },
+    {
+      "id": "GK08",
+      "code": "GK08",
+      "name": "Bùi Thanh Thảo",
+      "title": "Giám Khảo 8 - Giám Đốc Truyền Thông & Thương Hiệu",
+      "avatar": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300&auto=format&fit=crop&q=80"
+    },
+    {
+      "id": "GK09",
+      "code": "GK09",
+      "name": "Đỗ Minh Tuấn",
+      "title": "Giám Khảo 9 - Đại Diện Công Đoàn Công Ty",
+      "avatar": "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=300&auto=format&fit=crop&q=80"
+    },
+    {
+      "id": "GK10",
+      "code": "GK10",
+      "name": "Phan Ngọc Lan",
+      "title": "Giám Khảo 10 - Trưởng Ban Kiểm Soát Nội Bộ",
+      "avatar": "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=300&auto=format&fit=crop&q=80"
+    }
+  ],
+  "scores": [
+    {
+      "id": "SC-1",
+      "contestantId": "TS01",
+      "round": 1,
+      "judgeId": "GK01",
+      "score": 10,
+      "notes": "Xuất sắc",
+      "updatedAt": "2026-09-18T09:47:38.673Z"
+    },
+    {
+      "id": "SC-2",
+      "contestantId": "TS01",
+      "round": 1,
+      "judgeId": "GK02",
+      "score": 7,
+      "notes": "Tư duy dữ liệu sắc bén",
+      "updatedAt": "2026-09-18T09:48:39.172Z"
+    },
+    {
+      "id": "SC-3",
+      "contestantId": "TS01",
+      "round": 1,
+      "judgeId": "GK03",
+      "score": 10,
+      "notes": "Hoàn hảo",
+      "updatedAt": "2026-09-16T03:43:44.575Z"
+    },
+    {
+      "id": "SC-4",
+      "contestantId": "TS02",
+      "round": 1,
+      "judgeId": "GK01",
+      "score": 9,
+      "notes": "Rất tốt",
+      "updatedAt": "2026-09-18T09:47:38.673Z"
+    },
+    {
+      "id": "SC-5",
+      "contestantId": "TS02",
+      "round": 1,
+      "judgeId": "GK02",
+      "score": 9,
+      "notes": "Rất thuyết phục",
+      "updatedAt": "2026-09-16T03:43:44.575Z"
+    },
+    {
+      "id": "SC-6",
+      "contestantId": "TS03",
+      "round": 1,
+      "judgeId": "GK01",
+      "score": 8,
+      "notes": "Kiến thức kỹ thuật chuyên sâu",
+      "updatedAt": "2026-09-16T03:43:44.575Z"
+    },
+    {
+      "id": "SC-7",
+      "contestantId": "TS07",
+      "round": 1,
+      "judgeId": "GK01",
+      "score": 10,
+      "notes": "Giải pháp AI vượt trội",
+      "updatedAt": "2026-09-16T03:43:44.575Z"
+    },
+    {
+      "id": "SC-8",
+      "contestantId": "TS07",
+      "round": 1,
+      "judgeId": "GK03",
+      "score": 10,
+      "notes": "Rất tiềm năng",
+      "updatedAt": "2026-09-16T03:43:44.575Z"
+    },
+    {
+      "id": "SC-9",
+      "contestantId": "TS13",
+      "round": 1,
+      "judgeId": "GK01",
+      "score": 9,
+      "notes": "Thiết kế trực quan đẹp mắt",
+      "updatedAt": "2026-09-16T03:43:44.575Z"
+    },
+    {
+      "id": "SC-10",
+      "contestantId": "TS22",
+      "round": 1,
+      "judgeId": "GK01",
+      "score": 9,
+      "notes": "Tự tin, chuyên nghiệp",
+      "updatedAt": "2026-09-16T03:43:44.575Z"
+    },
+    {
+      "id": "SC-R2-01",
+      "contestantId": "TS01",
+      "round": 2,
+      "judgeId": "ADMIN",
+      "score": 9.5,
+      "notes": "test",
+      "updatedAt": "2026-09-18T09:37:19.356Z"
+    },
+    {
+      "id": "SC-R2-02",
+      "contestantId": "TS02",
+      "round": 2,
+      "judgeId": "ADMIN",
+      "score": 8.5,
+      "notes": "Hoàn thành tốt tình huống thực tế",
+      "updatedAt": "2026-09-16T03:43:44.575Z"
+    },
+    {
+      "id": "SC-R2-03",
+      "contestantId": "TS03",
+      "round": 2,
+      "judgeId": "ADMIN",
+      "score": 8,
+      "notes": "Kiến trúc đáp ứng yêu cầu",
+      "updatedAt": "2026-09-16T03:43:44.575Z"
+    },
+    {
+      "id": "SC-R2-04",
+      "contestantId": "TS04",
+      "round": 2,
+      "judgeId": "ADMIN",
+      "score": 7.5,
+      "notes": "Cần bổ sung phương án dự phòng",
+      "updatedAt": "2026-09-16T03:43:44.575Z"
+    },
+    {
+      "id": "SC-R2-07",
+      "contestantId": "TS07",
+      "round": 2,
+      "judgeId": "ADMIN",
+      "score": 9.8,
+      "notes": "Thuật toán tối ưu xuất sắc",
+      "updatedAt": "2026-09-16T03:43:44.575Z"
+    },
+    {
+      "id": "SC-R2-13",
+      "contestantId": "TS13",
+      "round": 2,
+      "judgeId": "ADMIN",
+      "score": 9,
+      "notes": "Trải nghiệm người dùng tốt",
+      "updatedAt": "2026-09-16T03:43:44.575Z"
+    },
+    {
+      "id": "SC-R2-22",
+      "contestantId": "TS22",
+      "round": 2,
+      "judgeId": "ADMIN",
+      "score": 9.2,
+      "notes": "Kế hoạch mở rộng khả thi",
+      "updatedAt": "2026-09-16T03:43:44.575Z"
+    },
+    {
+      "id": "SC-1789530866261-pmb3",
+      "contestantId": "TS03",
+      "round": 1,
+      "judgeId": "GK02",
+      "score": 10,
+      "notes": "",
+      "updatedAt": "2026-09-16T03:54:26.261Z"
+    }
+  ],
+  "activeJudgeId": "GK02",
+  "updatedAt": "2026-09-18T09:52:51.246Z"
+}

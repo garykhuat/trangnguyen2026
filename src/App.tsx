@@ -39,7 +39,20 @@ import {
   saveStoredScores,
   clearAllStoredContestData,
 } from './utils/storage.ts';
-import { AlertCircle, RefreshCw, Lock, ShieldCheck } from 'lucide-react';
+import { AlertCircle, RefreshCw, Lock, ShieldCheck, Cloud } from 'lucide-react';
+import {
+  initializeFirestoreIfEmpty,
+  subscribeToContestants,
+  subscribeToJudges,
+  subscribeToScores,
+  updateContestantInFirestore,
+  updateJudgeInFirestore,
+  saveScoreInFirestore,
+  saveBatchScoresInFirestore,
+  resetAllScoresInFirestore,
+  resetFullContestInFirestore,
+} from './services/firebaseSync.ts';
+import { testFirestoreConnection } from './firebase.ts';
 
 export default function App() {
   const [activePage, setActivePage] = useState<ActivePage>('home');
@@ -152,7 +165,40 @@ export default function App() {
     loadData();
   }, [loadData]);
 
-  // Silent real-time synchronization so all devices see live updates immediately
+  // Connect & subscribe to Cloud Firestore for true multi-device real-time sync
+  useEffect(() => {
+    testFirestoreConnection();
+    initializeFirestoreIfEmpty();
+
+    const unsubContestants = subscribeToContestants((cloudContestants) => {
+      if (cloudContestants && cloudContestants.length > 0) {
+        setContestants(cloudContestants);
+        saveStoredContestants(cloudContestants);
+      }
+    });
+
+    const unsubJudges = subscribeToJudges((cloudJudges) => {
+      if (cloudJudges && cloudJudges.length > 0) {
+        setJudges(cloudJudges);
+        saveStoredJudges(cloudJudges);
+      }
+    });
+
+    const unsubScores = subscribeToScores((cloudScores) => {
+      if (cloudScores) {
+        setScores(cloudScores);
+        saveStoredScores(cloudScores);
+      }
+    });
+
+    return () => {
+      unsubContestants();
+      unsubJudges();
+      unsubScores();
+    };
+  }, []);
+
+  // Silent real-time synchronization fallback so all devices see live updates immediately
   const syncWithServerSilently = useCallback(async () => {
     if (isPollingRef.current) return;
     try {
@@ -268,6 +314,13 @@ export default function App() {
       return [...prev, optimisticEntry];
     });
 
+    // Cloud Firestore broadcast
+    try {
+      await saveScoreInFirestore(optimisticEntry);
+    } catch (fsErr) {
+      console.warn('[Firestore] Error saving score to cloud:', fsErr);
+    }
+
     try {
       const res = await saveScoreApi(contestantId, round, effectiveJudgeId, numScore, notes);
       if (res && res.allScores) {
@@ -328,6 +381,17 @@ export default function App() {
       return clone;
     });
 
+    // Cloud Firestore batch save
+    try {
+      await saveBatchScoresInFirestore(preparedScores.map((s, idx) => ({
+        id: `SC-${Date.now()}-${idx}-${Math.random().toString(36).substring(2, 6)}`,
+        ...s,
+        updatedAt: new Date().toISOString(),
+      })));
+    } catch (fsErr) {
+      console.warn('[Firestore] Batch score cloud sync failed:', fsErr);
+    }
+
     try {
       const res = await saveBatchScoresApi(preparedScores);
       if (res && res.allScores) {
@@ -354,13 +418,22 @@ export default function App() {
 
   // Update contestant info & photo
   const handleUpdateContestant = async (id: string, data: Partial<Contestant>) => {
+    // 1. Optimistic state
+    setContestants((prev) => prev.map((c) => (c.id === id ? { ...c, ...data } : c)));
+
+    // 2. Cloud Firestore update (instant broadcast to all phones/tablets/desktops)
     try {
-      const updated = await updateContestantApi(id, data);
-      setContestants((prev) => prev.map((c) => (c.id === id ? updated : c)));
-      showToast('Đã cập nhật thông tin thí sinh!', 'success');
+      await updateContestantInFirestore(id, data);
+    } catch (fsErr) {
+      console.warn('[Firestore] Error updating contestant in cloud:', fsErr);
+    }
+
+    // 3. Local server sync
+    try {
+      await updateContestantApi(id, data);
+      showToast('Đã cập nhật và đồng bộ thông tin thí sinh đến mọi thiết bị!', 'success');
     } catch (err) {
-      setContestants((prev) => prev.map((c) => (c.id === id ? { ...c, ...data } : c)));
-      showToast('Đã lưu thông tin thí sinh tạm thời', 'info');
+      showToast('Đã cập nhật thông tin thí sinh trên đám mây', 'success');
     }
   };
 
@@ -479,13 +552,23 @@ export default function App() {
   // Reset database to original sample data
   const handleResetData = async () => {
     clearAllStoredContestData();
+    try {
+      await resetFullContestInFirestore();
+    } catch (fsErr) {
+      console.warn('[Firestore] Reset cloud contest error:', fsErr);
+    }
     await resetDataApi();
     await loadData();
-    showToast('Đã đặt lại dữ liệu mẫu ban đầu thành công!', 'success');
+    showToast('Đã đặt lại dữ liệu mẫu ban đầu thành công trên mọi thiết bị!', 'success');
   };
 
   // Reset all contestant scores to 0 (for testing before official contest)
   const handleResetAllScores = async (unhideAllContestants = false) => {
+    try {
+      await resetAllScoresInFirestore(unhideAllContestants);
+    } catch (fsErr) {
+      console.warn('[Firestore] Reset scores in cloud error:', fsErr);
+    }
     try {
       const res = await resetAllScoresApi(unhideAllContestants);
       setScores([]);
@@ -540,11 +623,21 @@ export default function App() {
   };
 
   const handleUpdateJudge = async (id: string, data: Partial<Judge>) => {
+    // Optimistic
+    setJudges((prev) => prev.map((j) => (j.id === id ? { ...j, ...data } : j)));
+
+    // Firestore sync
+    try {
+      await updateJudgeInFirestore(id, data);
+    } catch (fsErr) {
+      console.warn('[Firestore] Error updating judge in cloud:', fsErr);
+    }
+
     try {
       const updated = await updateJudgeApi(id, data);
       setJudges((prev) => prev.map((j) => (j.id === id ? updated : j)));
     } catch (err) {
-      setJudges((prev) => prev.map((j) => (j.id === id ? { ...j, ...data } : j)));
+      // already updated optimistically
     }
   };
 

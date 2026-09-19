@@ -1,0 +1,22 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Trang Nguyen 2026 Competition Rules
+    // Public read and write for the event execution across all judges & organizers
+    match /contestants/{contestantId} {
+      allow read, write: if true;
+    }
+    
+    match /judges/{judgeId} {
+      allow read, write: if true;
+    }
+    
+    match /scores/{scoreId} {
+      allow read, write: if true;
+    }
+    
+    match /meta/{metaId} {
+      allow read, write: if true;
+    }
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "entities": {
+    "Contestant": {
+      "title": "Contestant",
+      "description": "Contestant profile in Trang Nguyen 2026 competition",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "sbd": { "type": "string" },
+        "name": { "type": "string" },
+        "title": { "type": "string" },
+        "department": { "type": "string" },
+        "region": { "type": "string" },
+        "regionId": { "type": "number" },
+        "avatar": { "type": "string" },
+        "bio": { "type": "string" },
+        "aspirations": { "type": "string" },
+        "funFact": { "type": "string" },
+        "round2Score": { "type": "number" },
+        "hidden": { "type": "boolean" },
+        "notes": { "type": "string" }
+      },
+      "required": ["id", "sbd", "name"]
+    },
+    "Judge": {
+      "title": "Judge",
+      "description": "Judge profile in Trang Nguyen 2026 competition",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "title": { "type": "string" },
+        "role": { "type": "string" },
+        "organization": { "type": "string" },
+        "avatar": { "type": "string" },
+        "hidden": { "type": "boolean" },
+        "pin": { "type": "string" }
+      },
+      "required": ["id", "name"]
+    },
+    "ScoreRecord": {
+      "title": "ScoreRecord",
+      "description": "Score given by a judge to a contestant for a specific round",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "contestantId": { "type": "string" },
+        "judgeId": { "type": "string" },
+        "round": { "type": "number" },
+        "totalScore": { "type": "number" },
+        "criteriaScores": { "type": "object" },
+        "comment": { "type": "string" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["id", "contestantId", "judgeId", "round", "totalScore"]
+    },
+    "ContestMeta": {
+      "title": "ContestMeta",
+      "description": "Contest metadata and synchronization state",
+      "type": "object",
+      "properties": {
+        "activeJudgeId": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      }
+    }
+  },
+  "firestore": {
+    "/contestants/{contestantId}": {
+      "schema": "Contestant",
+      "description": "List of contestants"
+    },
+    "/judges/{judgeId}": {
+      "schema": "Judge",
+      "description": "List of judges"
+    },
+    "/scores/{scoreId}": {
+      "schema": "ScoreRecord",
+      "description": "Score records submitted by judges"
+    },
+    "/meta/{metaId}": {
+      "schema": "ContestMeta",
+      "description": "Contest metadata"
+    }
+  }
+}

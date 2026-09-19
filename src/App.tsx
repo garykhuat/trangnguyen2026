@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Header, ActivePage } from './components/Header.tsx';
 import { JudgeSelectorModal } from './components/JudgeSelectorModal.tsx';
 import { AdminLoginModal } from './components/AdminLoginModal.tsx';
+import { ShareDeviceModal } from './components/ShareDeviceModal.tsx';
 import { ToastContainer, ToastMessage } from './components/Toast.tsx';
 import { HomeView } from './views/HomeView.tsx';
 import { ContestantsView } from './views/ContestantsView.tsx';
@@ -57,9 +58,13 @@ export default function App() {
   const [userRole, setUserRole] = useState<UserRole>('admin');
   const [isAdminLoginOpen, setIsAdminLoginOpen] = useState(false);
   const [isJudgeModalOpen, setIsJudgeModalOpen] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
+
+  const lastUpdatedAtRef = useRef<string | null>(null);
+  const isPollingRef = useRef<boolean>(false);
 
   const showToast = useCallback((message: string, type: 'success' | 'error' | 'info' = 'info') => {
     const id = `toast-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
@@ -78,6 +83,10 @@ export default function App() {
       const data = await fetchContestData();
 
       if (data) {
+        if (data.updatedAt) {
+          lastUpdatedAtRef.current = data.updatedAt;
+        }
+
         const localScores = loadStoredScores();
         const localContestants = loadStoredContestants();
         const localJudges = loadStoredJudges();
@@ -105,6 +114,9 @@ export default function App() {
             if (synced.scores) {
               setScores(synced.scores);
               saveStoredScores(synced.scores);
+            }
+            if (synced.updatedAt) {
+              lastUpdatedAtRef.current = synced.updatedAt;
             }
           } catch (syncErr) {
             console.warn('[App] Could not sync local data to server:', syncErr);
@@ -139,6 +151,58 @@ export default function App() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  // Silent real-time synchronization so all devices see live updates immediately
+  const syncWithServerSilently = useCallback(async () => {
+    if (isPollingRef.current) return;
+    try {
+      isPollingRef.current = true;
+      const data = await fetchContestData();
+      if (data && data.updatedAt && data.updatedAt !== lastUpdatedAtRef.current) {
+        lastUpdatedAtRef.current = data.updatedAt;
+        if (Array.isArray(data.contestants) && data.contestants.length > 0) {
+          setContestants(data.contestants);
+          saveStoredContestants(data.contestants);
+        }
+        if (Array.isArray(data.judges) && data.judges.length > 0) {
+          setJudges(data.judges);
+          saveStoredJudges(data.judges);
+        }
+        if (Array.isArray(data.scores)) {
+          setScores(data.scores);
+          saveStoredScores(data.scores);
+        }
+      }
+    } catch {
+      // Quiet background polling
+    } finally {
+      isPollingRef.current = false;
+    }
+  }, []);
+
+  // Poll server every 3.5 seconds when window is active, plus on tab focus/wake
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
+        syncWithServerSilently();
+      }
+    }, 3500);
+
+    const handleWake = () => {
+      syncWithServerSilently();
+    };
+
+    window.addEventListener('focus', handleWake);
+    window.addEventListener('online', handleWake);
+    document.addEventListener('visibilitychange', handleWake);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', handleWake);
+      window.removeEventListener('online', handleWake);
+      document.removeEventListener('visibilitychange', handleWake);
+    };
+  }, [syncWithServerSilently]);
 
   // Reactive automatic local storage saving so data is NEVER lost on F5
   useEffect(() => {
@@ -518,6 +582,7 @@ export default function App() {
         userRole={userRole}
         onOpenAdminLogin={() => setIsAdminLoginOpen(true)}
         onSwitchToJudge={() => handleRoleChange('judge')}
+        onOpenShareModal={() => setIsShareModalOpen(true)}
       />
 
       {/* Main Container */}
@@ -731,6 +796,14 @@ export default function App() {
           isOpen={isAdminLoginOpen}
           onClose={() => setIsAdminLoginOpen(false)}
           onSuccess={handleAdminLoginSuccess}
+        />
+      )}
+
+      {/* Share / Multi-device Modal */}
+      {isShareModalOpen && (
+        <ShareDeviceModal
+          onClose={() => setIsShareModalOpen(false)}
+          showToast={showToast}
         />
       )}
 

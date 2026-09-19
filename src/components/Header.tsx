@@ -15,6 +15,7 @@ import {
   Shield,
   LogOut,
   Lock,
+  QrCode,
 } from 'lucide-react';
 import { Judge } from '../types.ts';
 
@@ -32,6 +33,7 @@ interface HeaderProps {
   userRole: UserRole;
   onOpenAdminLogin: () => void;
   onSwitchToJudge: () => void;
+  onOpenShareModal?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -44,6 +46,7 @@ export const Header: React.FC<HeaderProps> = ({
   userRole,
   onOpenAdminLogin,
   onSwitchToJudge,
+  onOpenShareModal,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const activeJudges = judges.filter((j) => !j.hidden);
@@ -131,6 +134,20 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Right Area: Identity Switcher & Admin Status */}
           <div className="flex items-center gap-2">
+            {/* Multi-device connect button */}
+            {onOpenShareModal && (
+              <button
+                type="button"
+                id="header-connect-devices-btn"
+                onClick={onOpenShareModal}
+                title="Kết nối đa thiết bị / Quét mã QR để mở trên điện thoại, iPad"
+                className="px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl border border-emerald-200 bg-emerald-50/80 hover:bg-emerald-100 text-emerald-800 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+              >
+                <QrCode className="w-4 h-4 text-emerald-600" />
+                <span className="hidden sm:inline">Kết Nối Máy</span>
+              </button>
+            )}
+
             {userRole === 'admin' ? (
               // Admin Profile Card
               <div className="flex items-center gap-2">

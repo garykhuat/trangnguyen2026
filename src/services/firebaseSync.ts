@@ -73,7 +73,11 @@ export function subscribeToContestants(
       if (snapshot.empty) return;
       const list: Contestant[] = [];
       snapshot.forEach((docSnap) => {
-        list.push(docSnap.data() as Contestant);
+        const item = docSnap.data() as Contestant;
+        list.push({
+          ...item,
+          hidden: Boolean(item.hidden),
+        });
       });
       // Sort stably by SBD
       list.sort((a, b) => a.sbd.localeCompare(b.sbd));
@@ -98,7 +102,14 @@ export function subscribeToJudges(
       if (snapshot.empty) return;
       const list: Judge[] = [];
       snapshot.forEach((docSnap) => {
-        list.push(docSnap.data() as Judge);
+        const item = docSnap.data() as Judge;
+        const judgeId = item.id || docSnap.id;
+        list.push({
+          ...item,
+          id: judgeId,
+          code: item.code || judgeId,
+          hidden: Boolean(item.hidden),
+        });
       });
       list.sort((a, b) => a.id.localeCompare(b.id));
       callback(list);
@@ -132,38 +143,171 @@ export function subscribeToScores(
 }
 
 /**
- * Updates a contestant profile in Firestore (name, avatar, title, etc.)
+ * Updates a contestant profile in Firestore (name, avatar, title, hidden, etc.)
  */
 export async function updateContestantInFirestore(
   id: string,
   data: Partial<Contestant>
 ): Promise<void> {
   const ref = doc(db, CONTESTANTS_COL, id);
-  await updateDoc(ref, {
-    ...data,
-    updatedAt: new Date().toISOString(),
-  });
+  await setDoc(
+    ref,
+    {
+      ...data,
+      updatedAt: new Date().toISOString(),
+    },
+    { merge: true }
+  );
   // Also bump global meta
-  await updateDoc(doc(db, META_COL, 'state'), {
-    updatedAt: new Date().toISOString(),
-  }).catch(() => {});
+  await setDoc(
+    doc(db, META_COL, 'state'),
+    {
+      updatedAt: new Date().toISOString(),
+    },
+    { merge: true }
+  ).catch(() => {});
 }
 
 /**
- * Updates a judge in Firestore (name, avatar, title, etc.)
+ * Specifically toggles or sets contestant hidden state in Firestore
+ */
+export async function toggleContestantHiddenInFirestore(
+  id: string,
+  hidden: boolean
+): Promise<void> {
+  const ref = doc(db, CONTESTANTS_COL, id);
+  await setDoc(
+    ref,
+    {
+      hidden: Boolean(hidden),
+      updatedAt: new Date().toISOString(),
+    },
+    { merge: true }
+  );
+  await setDoc(
+    doc(db, META_COL, 'state'),
+    {
+      updatedAt: new Date().toISOString(),
+    },
+    { merge: true }
+  ).catch(() => {});
+}
+
+/**
+ * Creates or overwrites a contestant in Firestore
+ */
+export async function saveContestantToFirestore(contestant: Contestant): Promise<void> {
+  const ref = doc(db, CONTESTANTS_COL, contestant.id);
+  await setDoc(
+    ref,
+    {
+      ...contestant,
+      hidden: Boolean(contestant.hidden),
+      updatedAt: new Date().toISOString(),
+    },
+    { merge: true }
+  );
+  await setDoc(
+    doc(db, META_COL, 'state'),
+    {
+      updatedAt: new Date().toISOString(),
+    },
+    { merge: true }
+  ).catch(() => {});
+}
+
+/**
+ * Updates a judge in Firestore (name, avatar, title, hidden, etc.)
  */
 export async function updateJudgeInFirestore(
   id: string,
   data: Partial<Judge>
 ): Promise<void> {
-  const ref = doc(db, JUDGES_COL, id);
-  await updateDoc(ref, {
+  const normId = (id || '').trim();
+  const ref = doc(db, JUDGES_COL, normId);
+  const payload: any = {
     ...data,
+    id: normId,
     updatedAt: new Date().toISOString(),
+  };
+  if (data.hidden !== undefined) {
+    payload.hidden = Boolean(data.hidden);
+  }
+  await setDoc(ref, payload, { merge: true });
+  await setDoc(
+    doc(db, META_COL, 'state'),
+    {
+      updatedAt: new Date().toISOString(),
+    },
+    { merge: true }
+  ).catch(() => {});
+}
+
+/**
+ * Specifically toggles or sets judge hidden state in Firestore
+ */
+export async function toggleJudgeHiddenInFirestore(
+  id: string,
+  hidden: boolean
+): Promise<void> {
+  const normId = (id || '').trim();
+  const ref = doc(db, JUDGES_COL, normId);
+  await setDoc(
+    ref,
+    {
+      id: normId,
+      hidden: Boolean(hidden),
+      updatedAt: new Date().toISOString(),
+    },
+    { merge: true }
+  );
+  await setDoc(
+    doc(db, META_COL, 'state'),
+    {
+      updatedAt: new Date().toISOString(),
+    },
+    { merge: true }
+  ).catch(() => {});
+}
+
+/**
+ * Creates or overwrites a judge in Firestore
+ */
+export async function saveJudgeToFirestore(judge: Judge): Promise<void> {
+  const ref = doc(db, JUDGES_COL, judge.id);
+  await setDoc(
+    ref,
+    {
+      ...judge,
+      hidden: Boolean(judge.hidden),
+      updatedAt: new Date().toISOString(),
+    },
+    { merge: true }
+  );
+  await setDoc(
+    doc(db, META_COL, 'state'),
+    {
+      updatedAt: new Date().toISOString(),
+    },
+    { merge: true }
+  ).catch(() => {});
+}
+
+/**
+ * Batch updates multiple contestants in Firestore (e.g. for auto-eliminate)
+ */
+export async function batchUpdateContestantsInFirestore(
+  updates: { id: string; hidden?: boolean; [key: string]: any }[]
+): Promise<void> {
+  const batch = writeBatch(db);
+  const now = new Date().toISOString();
+  updates.forEach((u) => {
+    const ref = doc(db, CONTESTANTS_COL, u.id);
+    batch.set(ref, { ...u, updatedAt: now }, { merge: true });
   });
-  await updateDoc(doc(db, META_COL, 'state'), {
-    updatedAt: new Date().toISOString(),
-  }).catch(() => {});
+  const metaRef = doc(db, META_COL, 'state');
+  batch.set(metaRef, { updatedAt: now }, { merge: true });
+  await batch.commit();
 }
 
 /**

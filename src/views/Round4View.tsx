@@ -60,7 +60,8 @@ export const Round4View: React.FC<Round4ViewProps> = ({
     setValidationErrors({});
   }, [activeJudgeId]);
 
-  const currentJudge = judges.find((j) => j.id === activeJudgeId) || judges[0];
+  const activeJudges = judges.filter((j) => !j.hidden);
+  const currentJudge = activeJudges.find((j) => j.id === activeJudgeId) || activeJudges[0] || judges[0];
 
   // Thí sinh lọt vào vòng 4: Chỉ hiển thị thí sinh KHÔNG BỊ ẨN
   const qualifiedContestants = contestants.filter((c) => !c.hidden);
@@ -399,6 +400,9 @@ export const Round4View: React.FC<Round4ViewProps> = ({
                       <div className="text-base font-black text-orange-700">
                         {summary.round4Count > 0 ? `${summary.round4Average}/10` : '0/10'}
                       </div>
+                      <div className="text-[9px] text-slate-400 mt-0.5">
+                        {summary.round4Count}/{activeJudges.length} GK
+                      </div>
                     </div>
                     <div className="p-2 rounded-xl bg-emerald-50 border border-emerald-200">
                       <div className="text-[10px] text-slate-500 font-medium">Tổng 4 Vòng</div>
@@ -463,6 +467,7 @@ export const Round4View: React.FC<Round4ViewProps> = ({
       <ContestantModal
         contestant={selectedContestantForModal}
         scores={scores}
+        totalJudgesCount={activeJudges.length}
         onClose={() => setSelectedContestantForModal(null)}
         onUpdateContestant={onUpdateContestant}
       />

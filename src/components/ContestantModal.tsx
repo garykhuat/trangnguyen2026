@@ -7,6 +7,7 @@ import { processImageFile } from '../utils/imageUtils.ts';
 interface ContestantModalProps {
   contestant: Contestant | null;
   scores: ScoreRecord[];
+  totalJudgesCount?: number;
   onClose: () => void;
   onToggleHidden?: (id: string, currentHidden: boolean) => void;
   onUpdateContestant?: (id: string, data: Partial<Contestant>) => Promise<void>;
@@ -15,6 +16,7 @@ interface ContestantModalProps {
 export const ContestantModal: React.FC<ContestantModalProps> = ({
   contestant,
   scores,
+  totalJudgesCount = 5,
   onClose,
   onToggleHidden,
   onUpdateContestant,
@@ -161,7 +163,7 @@ export const ContestantModal: React.FC<ContestantModalProps> = ({
                 {scoreSummary.round1Count > 0 ? `${scoreSummary.round1Average}/10` : '0/10'}
               </div>
               <div className="text-[10px] text-slate-400">
-                {scoreSummary.round1Count} Giám khảo chấm
+                {scoreSummary.round1Count}/{totalJudgesCount} GK chấm
               </div>
             </div>
             <div className="text-center p-2 rounded-lg bg-white shadow-xs border border-slate-100">
@@ -177,7 +179,7 @@ export const ContestantModal: React.FC<ContestantModalProps> = ({
                 {scoreSummary.round3Count > 0 ? `${scoreSummary.round3Average}/10` : '0/10'}
               </div>
               <div className="text-[10px] text-slate-400">
-                {scoreSummary.round3Count} Giám khảo chấm
+                {scoreSummary.round3Count}/{totalJudgesCount} GK chấm
               </div>
             </div>
             <div className="text-center p-2 rounded-lg bg-white shadow-xs border border-slate-100">
@@ -186,7 +188,7 @@ export const ContestantModal: React.FC<ContestantModalProps> = ({
                 {scoreSummary.round4Count > 0 ? `${scoreSummary.round4Average}/10` : '0/10'}
               </div>
               <div className="text-[10px] text-slate-400">
-                {scoreSummary.round4Count} Giám khảo chấm
+                {scoreSummary.round4Count}/{totalJudgesCount} GK chấm
               </div>
             </div>
           </div>

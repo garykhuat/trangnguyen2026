@@ -38,6 +38,8 @@ import {
   loadStoredScores,
   saveStoredScores,
   clearAllStoredContestData,
+  loadStoredUserRole,
+  saveStoredUserRole,
 } from './utils/storage.ts';
 import { AlertCircle, RefreshCw, Lock, ShieldCheck, Cloud } from 'lucide-react';
 import {
@@ -46,13 +48,19 @@ import {
   subscribeToJudges,
   subscribeToScores,
   updateContestantInFirestore,
+  toggleContestantHiddenInFirestore,
+  saveContestantToFirestore,
   updateJudgeInFirestore,
+  toggleJudgeHiddenInFirestore,
+  saveJudgeToFirestore,
   saveScoreInFirestore,
   saveBatchScoresInFirestore,
   resetAllScoresInFirestore,
   resetFullContestInFirestore,
 } from './services/firebaseSync.ts';
 import { testFirestoreConnection } from './firebase.ts';
+
+const VALID_JUDGE_IDS = new Set(['GK01', 'GK02', 'GK03', 'GK04', 'GK05']);
 
 export default function App() {
   const [activePage, setActivePage] = useState<ActivePage>('home');
@@ -68,7 +76,9 @@ export default function App() {
   const [activeJudgeId, setActiveJudgeId] = useState<string>(() => {
     return localStorage.getItem('active_judge_id') || 'GK01';
   });
-  const [userRole, setUserRole] = useState<UserRole>('admin');
+  const [userRole, setUserRole] = useState<UserRole>(() => {
+    return loadStoredUserRole();
+  });
   const [isAdminLoginOpen, setIsAdminLoginOpen] = useState(false);
   const [isJudgeModalOpen, setIsJudgeModalOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -137,12 +147,32 @@ export default function App() {
         } else {
           // Normal synchronization from server
           if (Array.isArray(data.contestants) && data.contestants.length > 0) {
-            setContestants(data.contestants);
-            saveStoredContestants(data.contestants);
+            const mergedContestants = data.contestants.map((sc) => {
+              const localMatch = localContestants?.find(
+                (lc) => lc.id.toLowerCase() === sc.id.toLowerCase()
+              );
+              return {
+                ...sc,
+                hidden: sc.hidden !== undefined ? Boolean(sc.hidden) : Boolean(localMatch?.hidden),
+              };
+            });
+            setContestants(mergedContestants);
+            saveStoredContestants(mergedContestants);
           }
           if (Array.isArray(data.judges) && data.judges.length > 0) {
-            setJudges(data.judges);
-            saveStoredJudges(data.judges);
+            const mergedJudges = data.judges
+              .filter((sj) => VALID_JUDGE_IDS.has(sj.id?.toUpperCase()))
+              .map((sj) => {
+                const localMatch = localJudges?.find(
+                  (lj) => lj.id.toLowerCase() === sj.id.toLowerCase()
+                );
+                return {
+                  ...sj,
+                  hidden: sj.hidden !== undefined ? Boolean(sj.hidden) : Boolean(localMatch?.hidden),
+                };
+              });
+            setJudges(mergedJudges);
+            saveStoredJudges(mergedJudges);
           }
           if (Array.isArray(data.scores)) {
             setScores(data.scores);
@@ -174,13 +204,16 @@ export default function App() {
       if (cloudContestants && cloudContestants.length > 0) {
         setContestants(cloudContestants);
         saveStoredContestants(cloudContestants);
+        syncDataApi({ contestants: cloudContestants }).catch(() => {});
       }
     });
 
     const unsubJudges = subscribeToJudges((cloudJudges) => {
       if (cloudJudges && cloudJudges.length > 0) {
-        setJudges(cloudJudges);
-        saveStoredJudges(cloudJudges);
+        const filtered = cloudJudges.filter((j) => VALID_JUDGE_IDS.has(j.id?.toUpperCase()));
+        setJudges(filtered);
+        saveStoredJudges(filtered);
+        syncDataApi({ judges: filtered }).catch(() => {});
       }
     });
 
@@ -211,8 +244,9 @@ export default function App() {
           saveStoredContestants(data.contestants);
         }
         if (Array.isArray(data.judges) && data.judges.length > 0) {
-          setJudges(data.judges);
-          saveStoredJudges(data.judges);
+          const filtered = data.judges.filter((j) => VALID_JUDGE_IDS.has(j.id?.toUpperCase()));
+          setJudges(filtered);
+          saveStoredJudges(filtered);
         }
         if (Array.isArray(data.scores)) {
           setScores(data.scores);
@@ -268,6 +302,19 @@ export default function App() {
       saveStoredScores(scores);
     }
   }, [scores, loading]);
+
+  // Guard: If currently selected activeJudgeId is hidden, automatically select the first non-hidden judge
+  useEffect(() => {
+    if (judges.length === 0) return;
+    const current = judges.find((j) => j.id.toLowerCase() === activeJudgeId.toLowerCase());
+    if (current && current.hidden) {
+      const firstActive = judges.find((j) => !j.hidden);
+      if (firstActive) {
+        setActiveJudgeId(firstActive.id);
+        localStorage.setItem('active_judge_id', firstActive.id);
+      }
+    }
+  }, [judges, activeJudgeId]);
 
   // Set active judge
   const handleSelectJudge = async (judgeId: string) => {
@@ -406,12 +453,44 @@ export default function App() {
 
   // Toggle hidden state (eliminate contestant from round 3 & 4)
   const handleToggleHidden = async (id: string, currentHidden: boolean) => {
+    const nextHidden = !currentHidden;
+
+    // 1. Optimistic local state + immediate local storage persist
+    setContestants((prev) => {
+      const next = prev.map((c) => (c.id === id ? { ...c, hidden: nextHidden } : c));
+      saveStoredContestants(next);
+      return next;
+    });
+
+    // 2. Cloud Firestore broadcast (guarantees persistence across F5 and across all devices)
     try {
-      const updated = await toggleContestantHiddenApi(id, !currentHidden);
-      setContestants((prev) => prev.map((c) => (c.id === id ? updated : c)));
+      await toggleContestantHiddenInFirestore(id, nextHidden);
+    } catch (fsErr) {
+      console.warn('[Firestore] Error toggling contestant hidden in cloud:', fsErr);
+    }
+
+    // 3. Local server sync
+    try {
+      const updated = await toggleContestantHiddenApi(id, nextHidden);
+      if (updated) {
+        setContestants((prev) => {
+          const next = prev.map((c) => (c.id === id ? { ...c, hidden: updated.hidden } : c));
+          saveStoredContestants(next);
+          return next;
+        });
+      }
+      showToast(
+        nextHidden
+          ? 'Đã ẩn thí sinh khỏi Vòng 3 & 4 (Đã đồng bộ lên đám mây & mọi thiết bị)'
+          : 'Đã mở lại thí sinh cho Vòng 3 & 4 (Đã đồng bộ lên đám mây & mọi thiết bị)',
+        'success'
+      );
     } catch (err) {
-      setContestants((prev) =>
-        prev.map((c) => (c.id === id ? { ...c, hidden: !currentHidden } : c))
+      showToast(
+        nextHidden
+          ? 'Đã cập nhật trạng thái ẩn thí sinh trên đám mây'
+          : 'Đã cập nhật trạng thái mở thí sinh trên đám mây',
+        'info'
       );
     }
   };
@@ -419,7 +498,11 @@ export default function App() {
   // Update contestant info & photo
   const handleUpdateContestant = async (id: string, data: Partial<Contestant>) => {
     // 1. Optimistic state
-    setContestants((prev) => prev.map((c) => (c.id === id ? { ...c, ...data } : c)));
+    setContestants((prev) => {
+      const next = prev.map((c) => (c.id === id ? { ...c, ...data } : c));
+      saveStoredContestants(next);
+      return next;
+    });
 
     // 2. Cloud Firestore update (instant broadcast to all phones/tablets/desktops)
     try {
@@ -441,8 +524,18 @@ export default function App() {
   const handleAddContestant = async (data: Partial<Contestant>) => {
     try {
       const created = await addContestantApi(data);
-      setContestants((prev) => [...prev, created]);
-      showToast('Đã thêm thí sinh mới thành công!', 'success');
+      setContestants((prev) => {
+        const next = [...prev, created];
+        saveStoredContestants(next);
+        return next;
+      });
+      // Cloud Firestore sync
+      try {
+        await saveContestantToFirestore(created);
+      } catch (fsErr) {
+        console.warn('[Firestore] Error saving new contestant to cloud:', fsErr);
+      }
+      showToast('Đã thêm thí sinh mới và đồng bộ đến mọi thiết bị!', 'success');
     } catch (err) {
       const fallbackId = `TS${contestants.length + 1}`;
       const newC: Contestant = {
@@ -459,8 +552,17 @@ export default function App() {
         strengths: data.strengths || [],
         hidden: false,
       };
-      setContestants((prev) => [...prev, newC]);
-      showToast('Đã thêm thí sinh tạm thời', 'info');
+      setContestants((prev) => {
+        const next = [...prev, newC];
+        saveStoredContestants(next);
+        return next;
+      });
+      try {
+        await saveContestantToFirestore(newC);
+      } catch (fsErr) {
+        console.warn('[Firestore] Error saving fallback contestant to cloud:', fsErr);
+      }
+      showToast('Đã thêm thí sinh mới thành công!', 'info');
     }
   };
 
@@ -596,7 +698,7 @@ export default function App() {
   // Role switching
   const handleRoleChange = (role: UserRole) => {
     setUserRole(role);
-    localStorage.setItem('contest_user_role', role);
+    saveStoredUserRole(role);
     if (role === 'judge') {
       if (activePage === 'admin' || activePage === 'leaderboard') {
         setActivePage('home');
@@ -608,34 +710,105 @@ export default function App() {
     handleRoleChange('admin');
     setIsAdminLoginOpen(false);
     setActivePage('admin');
+    showToast('Đăng nhập Quản trị viên thành công!', 'success');
   };
 
   // Judge management handlers
   const handleToggleJudgeHidden = async (id: string, currentHidden: boolean) => {
+    const nextHidden = !currentHidden;
+    const normId = (id || '').trim();
+
+    // 1. Optimistic local state + immediate local storage persist
+    const next = judges.map((j) =>
+      j.id.toLowerCase() === normId.toLowerCase() || j.code?.toLowerCase() === normId.toLowerCase()
+        ? { ...j, hidden: nextHidden }
+        : j
+    );
+    setJudges(next);
+    saveStoredJudges(next);
+
+    // If active judge was hidden, switch to first active judge immediately
+    if (activeJudgeId.toLowerCase() === normId.toLowerCase() && nextHidden) {
+      const firstActive = next.find((j) => !j.hidden);
+      if (firstActive) {
+        setActiveJudgeId(firstActive.id);
+        localStorage.setItem('active_judge_id', firstActive.id);
+      }
+    }
+
+    // 2. Cloud Firestore broadcast (guarantees persistence across F5 and all devices)
     try {
-      const updated = await toggleJudgeHiddenApi(id, !currentHidden);
-      setJudges((prev) => prev.map((j) => (j.id === id ? updated : j)));
+      await toggleJudgeHiddenInFirestore(normId, nextHidden);
+    } catch (fsErr) {
+      console.warn('[Firestore] Error toggling judge hidden in cloud:', fsErr);
+    }
+
+    // 3. Local server sync
+    try {
+      const res = await toggleJudgeHiddenApi(normId, nextHidden);
+      if (res && res.judge) {
+        setJudges((prev) => {
+          const updatedList = prev.map((j) =>
+            j.id.toLowerCase() === normId.toLowerCase() || j.code?.toLowerCase() === normId.toLowerCase()
+              ? { ...j, hidden: Boolean(res.judge.hidden) }
+              : j
+          );
+          saveStoredJudges(updatedList);
+          return updatedList;
+        });
+        if (res.activeJudgeId) {
+          setActiveJudgeId(res.activeJudgeId);
+          localStorage.setItem('active_judge_id', res.activeJudgeId);
+        }
+      }
+      showToast(
+        nextHidden
+          ? 'Đã ẩn giám khảo (Đã lưu & đồng bộ thời gian thực)'
+          : 'Đã kích hoạt lại giám khảo (Đã lưu & đồng bộ thời gian thực)',
+        'success'
+      );
     } catch (err) {
-      setJudges((prev) =>
-        prev.map((j) => (j.id === id ? { ...j, hidden: !currentHidden } : j))
+      showToast(
+        nextHidden
+          ? 'Đã ẩn giám khảo trên đám mây'
+          : 'Đã kích hoạt lại giám khảo trên đám mây',
+        'info'
       );
     }
   };
 
   const handleUpdateJudge = async (id: string, data: Partial<Judge>) => {
+    const normId = (id || '').trim();
     // Optimistic
-    setJudges((prev) => prev.map((j) => (j.id === id ? { ...j, ...data } : j)));
+    setJudges((prev) => {
+      const next = prev.map((j) =>
+        j.id.toLowerCase() === normId.toLowerCase() || j.code?.toLowerCase() === normId.toLowerCase()
+          ? { ...j, ...data }
+          : j
+      );
+      saveStoredJudges(next);
+      return next;
+    });
 
     // Firestore sync
     try {
-      await updateJudgeInFirestore(id, data);
+      await updateJudgeInFirestore(normId, data);
     } catch (fsErr) {
       console.warn('[Firestore] Error updating judge in cloud:', fsErr);
     }
 
     try {
-      const updated = await updateJudgeApi(id, data);
-      setJudges((prev) => prev.map((j) => (j.id === id ? updated : j)));
+      const updated = await updateJudgeApi(normId, data);
+      setJudges((prev) => {
+        const next = prev.map((j) =>
+          j.id.toLowerCase() === normId.toLowerCase() || j.code?.toLowerCase() === normId.toLowerCase()
+            ? { ...j, ...updated }
+            : j
+        );
+        saveStoredJudges(next);
+        return next;
+      });
+      showToast('Đã cập nhật thông tin giám khảo đến mọi thiết bị!', 'success');
     } catch (err) {
       // already updated optimistically
     }
@@ -644,7 +817,17 @@ export default function App() {
   const handleAddJudge = async (data: Partial<Judge>) => {
     try {
       const created = await addJudgeApi(data);
-      setJudges((prev) => [...prev, created]);
+      setJudges((prev) => {
+        const next = [...prev, created];
+        saveStoredJudges(next);
+        return next;
+      });
+      try {
+        await saveJudgeToFirestore(created);
+      } catch (fsErr) {
+        console.warn('[Firestore] Error saving new judge to cloud:', fsErr);
+      }
+      showToast('Đã thêm giám khảo mới và đồng bộ đến mọi thiết bị!', 'success');
     } catch (err) {
       const newCode = `GK${String(judges.length + 1).padStart(2, '0')}`;
       const newJ: Judge = {
@@ -655,7 +838,17 @@ export default function App() {
         avatar: data.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80',
         hidden: false,
       };
-      setJudges((prev) => [...prev, newJ]);
+      setJudges((prev) => {
+        const next = [...prev, newJ];
+        saveStoredJudges(next);
+        return next;
+      });
+      try {
+        await saveJudgeToFirestore(newJ);
+      } catch (fsErr) {
+        console.warn('[Firestore] Error saving fallback judge to cloud:', fsErr);
+      }
+      showToast('Đã thêm giám khảo mới!', 'info');
     }
   };
 
@@ -726,6 +919,7 @@ export default function App() {
                 scores={scores}
                 activeJudgeId={activeJudgeId}
                 onOpenJudgeSelector={() => setIsJudgeModalOpen(true)}
+                onSelectJudge={handleSelectJudge}
                 userRole={userRole}
                 onOpenAdminLogin={() => setIsAdminLoginOpen(true)}
               />

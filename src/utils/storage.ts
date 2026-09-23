@@ -1,4 +1,4 @@
-import { Contestant, Judge, ScoreRecord } from '../types.ts';
+import { Contestant, Judge, ScoreRecord, UserRole } from '../types.ts';
 
 const STORAGE_KEYS = {
   CONTESTANTS: 'vpbank_contest_contestants',
@@ -43,7 +43,10 @@ function safeSet(key: string, value: any): boolean {
 export function loadStoredContestants(): Contestant[] | null {
   const data = safeParse<Contestant[] | null>(STORAGE_KEYS.CONTESTANTS, null);
   if (Array.isArray(data) && data.length > 0) {
-    return data;
+    return data.map((c) => ({
+      ...c,
+      hidden: Boolean(c.hidden),
+    }));
   }
   return null;
 }
@@ -52,11 +55,18 @@ export function saveStoredContestants(contestants: Contestant[]): boolean {
   return safeSet(STORAGE_KEYS.CONTESTANTS, contestants);
 }
 
+const VALID_JUDGE_IDS = new Set(['GK01', 'GK02', 'GK03', 'GK04', 'GK05']);
+
 // ======================== Judges ========================
 export function loadStoredJudges(): Judge[] | null {
   const data = safeParse<Judge[] | null>(STORAGE_KEYS.JUDGES, null);
   if (Array.isArray(data) && data.length > 0) {
-    return data;
+    return data
+      .filter((j) => VALID_JUDGE_IDS.has(j.id?.toUpperCase()))
+      .map((j) => ({
+        ...j,
+        hidden: Boolean(j.hidden),
+      }));
   }
   return null;
 }
@@ -93,7 +103,42 @@ export function clearAllStoredContestData(): void {
     localStorage.removeItem(STORAGE_KEYS.JUDGES);
     localStorage.removeItem(STORAGE_KEYS.SCORES);
     localStorage.removeItem(STORAGE_KEYS.LAST_UPDATED);
+    localStorage.removeItem(STORAGE_KEYS.USER_ROLE);
+    sessionStorage.removeItem(STORAGE_KEYS.USER_ROLE);
   } catch (err) {
     console.warn('[Storage] Error clearing contest data:', err);
   }
+}
+
+// ======================== User Role ========================
+/**
+ * Trả về vai trò người dùng.
+ * MẶC ĐỊNH LUÔN LÀ 'judge' (Giám khảo) khi vào website.
+ * Chỉ khi nào người dùng đăng nhập Quản trị viên trong phiên làm việc (sessionStorage) thì mới là 'admin'.
+ */
+export function loadStoredUserRole(): UserRole {
+  try {
+    if (typeof window !== 'undefined') {
+      // Dọn dẹp key cũ trong localStorage nếu có
+      localStorage.removeItem(STORAGE_KEYS.USER_ROLE);
+      const sessionRole = sessionStorage.getItem(STORAGE_KEYS.USER_ROLE);
+      if (sessionRole === 'admin') {
+        return 'admin';
+      }
+    }
+  } catch {}
+  return 'judge';
+}
+
+export function saveStoredUserRole(role: UserRole): void {
+  try {
+    if (typeof window !== 'undefined') {
+      if (role === 'admin') {
+        sessionStorage.setItem(STORAGE_KEYS.USER_ROLE, 'admin');
+      } else {
+        sessionStorage.removeItem(STORAGE_KEYS.USER_ROLE);
+      }
+      localStorage.removeItem(STORAGE_KEYS.USER_ROLE);
+    }
+  } catch {}
 }

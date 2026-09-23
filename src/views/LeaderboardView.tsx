@@ -327,7 +327,7 @@ export const LeaderboardView: React.FC<LeaderboardViewProps> = ({
                         {summary.round1Count > 0 ? `${summary.round1Average}` : '0'}
                       </div>
                       <div className="text-[10px] text-slate-400">
-                        {summary.round1Count}/10 GK
+                        {summary.round1Count}/{activeJudges.length} GK
                       </div>
                     </td>
 
@@ -343,7 +343,7 @@ export const LeaderboardView: React.FC<LeaderboardViewProps> = ({
                         {summary.round3Count > 0 ? `${summary.round3Average}` : '0'}
                       </div>
                       <div className="text-[10px] text-slate-400">
-                        {summary.round3Count > 0 ? `${summary.round3Count}/10 GK` : '-'}
+                        {summary.round3Count > 0 ? `${summary.round3Count}/${activeJudges.length} GK` : '-'}
                       </div>
                     </td>
 
@@ -352,7 +352,7 @@ export const LeaderboardView: React.FC<LeaderboardViewProps> = ({
                         {summary.round4Count > 0 ? `${summary.round4Average}` : '0'}
                       </div>
                       <div className="text-[10px] text-slate-400">
-                        {summary.round4Count > 0 ? `${summary.round4Count}/10 GK` : '-'}
+                        {summary.round4Count > 0 ? `${summary.round4Count}/${activeJudges.length} GK` : '-'}
                       </div>
                     </td>
 
@@ -385,6 +385,7 @@ export const LeaderboardView: React.FC<LeaderboardViewProps> = ({
       <ContestantModal
         contestant={selectedContestant}
         scores={scores}
+        totalJudgesCount={activeJudges.length}
         onClose={() => setSelectedContestant(null)}
         onToggleHidden={onToggleHidden}
         onUpdateContestant={onUpdateContestant}

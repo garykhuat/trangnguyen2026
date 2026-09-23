@@ -83,8 +83,21 @@ function loadStore() {
             c.region = REGION_MAP[c.regionId];
           }
         });
+
+        // Ensure exactly the defined 5 judges are present and extra ones removed
+        const validJudgeIds = new Set(INITIAL_JUDGES.map((j) => j.id.toUpperCase()));
+        store.judges = store.judges.filter((j) => validJudgeIds.has(j.id.toUpperCase()));
+        INITIAL_JUDGES.forEach((ij) => {
+          const existing = store.judges.find((j) => j.id.toUpperCase() === ij.id.toUpperCase());
+          if (!existing) {
+            store.judges.push({ ...ij, hidden: false });
+          } else if (existing.hidden === undefined) {
+            existing.hidden = false;
+          }
+        });
+
         saveStore();
-        console.log(`[Store] Loaded and verified data: ${store.contestants.length} contestants, ${store.scores.length} scores.`);
+        console.log(`[Store] Loaded and verified data: ${store.contestants.length} contestants, ${store.judges.length} judges, ${store.scores.length} scores.`);
         return;
       }
     }
@@ -301,7 +314,10 @@ app.patch('/api/contestants/:id/toggle-hidden', (req, res) => {
   const { id } = req.params;
   const { hidden } = req.body;
 
-  const contestant = store.contestants.find((c) => c.id === id);
+  const idNorm = (id || '').trim().toLowerCase();
+  const contestant = store.contestants.find(
+    (c) => c.id.trim().toLowerCase() === idNorm || c.sbd.trim().toLowerCase() === idNorm
+  );
   if (!contestant) {
     return res.status(404).json({ error: 'Không tìm thấy thí sinh.' });
   }
@@ -391,7 +407,7 @@ app.patch('/api/judges/:id/toggle-hidden', (req, res) => {
   judge.hidden = hidden !== undefined ? Boolean(hidden) : !judge.hidden;
 
   // If active judge was hidden, switch active judge to the first non-hidden judge
-  if (store.activeJudgeId === id && judge.hidden) {
+  if (store.activeJudgeId.toLowerCase() === idNorm && judge.hidden) {
     const firstActive = store.judges.find((j) => !j.hidden);
     if (firstActive) {
       store.activeJudgeId = firstActive.id;
@@ -469,7 +485,9 @@ app.post('/api/sync', (req, res) => {
   }
 
   if (Array.isArray(judges) && judges.length > 0) {
+    const validJudgeIds = new Set(INITIAL_JUDGES.map((j) => j.id.toUpperCase()));
     judges.forEach((jItem) => {
+      if (!validJudgeIds.has(jItem.id?.toUpperCase())) return;
       const idx = store.judges.findIndex(
         (j) => j.id.toLowerCase() === jItem.id.toLowerCase()
       );

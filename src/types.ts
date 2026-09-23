@@ -6,7 +6,7 @@ export interface Judge {
   name: string;
   title: string;
   avatar: string;
-  hidden?: boolean; // Cho phép ẩn bớt giám khảo khi chưa chốt đủ 10 người
+  hidden?: boolean; // Cho phép ẩn bớt giám khảo nếu cần
 }
 
 export interface Contestant {
@@ -29,7 +29,7 @@ export interface ScoreRecord {
   id: string;
   contestantId: string;
   round: number; // 1, 2, 3, 4
-  judgeId: string; // GK01 -> GK10 or ADMIN
+  judgeId: string; // GK01 -> GK05 or ADMIN
   score: number; // 1 -> 10
   notes?: string;
   updatedAt: string;

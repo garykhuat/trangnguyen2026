@@ -111,7 +111,7 @@ export const ShareDeviceModal: React.FC<ShareDeviceModalProps> = ({ onClose, sho
                 Mở liên kết trên bằng điện thoại/iPad cá nhân của từng Giám khảo.
               </li>
               <li>
-                Bấm vào thẻ <strong>Giám khảo</strong> ở góc trên thanh công cụ để chọn đúng tên mình (GK01 - GK10).
+                Bấm vào thẻ <strong>Giám khảo</strong> ở góc trên thanh công cụ để chọn đúng tên mình (GK01 - GK05).
               </li>
               <li>
                 Chấm điểm các vòng thi. Điểm số, hình ảnh thí sinh và bảng xếp hạng sẽ được máy chủ tự động đồng bộ ngay lập tức đến mọi thiết bị!

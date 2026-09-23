@@ -59,7 +59,8 @@ export const Round3View: React.FC<Round3ViewProps> = ({
     setValidationErrors({});
   }, [activeJudgeId]);
 
-  const currentJudge = judges.find((j) => j.id === activeJudgeId) || judges[0];
+  const activeJudges = judges.filter((j) => !j.hidden);
+  const currentJudge = activeJudges.find((j) => j.id === activeJudgeId) || activeJudges[0] || judges[0];
 
   // CRITICAL REQUIREMENT: Thí sinh bị ẩn sẽ KHÔNG hiển thị ở trang vòng 3
   const qualifiedContestants = contestants.filter((c) => !c.hidden);
@@ -386,7 +387,7 @@ export const Round3View: React.FC<Round3ViewProps> = ({
                     <div className="p-2 rounded-xl bg-amber-50 border border-amber-100">
                       <div className="text-[10px] text-slate-500 font-medium">BGK Đã Chấm</div>
                       <div className="text-base font-black text-amber-700">
-                        {summary.round3Count}/10 GK
+                        {summary.round3Count}/{activeJudges.length} GK
                       </div>
                     </div>
                   </div>
@@ -446,6 +447,7 @@ export const Round3View: React.FC<Round3ViewProps> = ({
       <ContestantModal
         contestant={selectedContestantForModal}
         scores={scores}
+        totalJudgesCount={activeJudges.length}
         onClose={() => setSelectedContestantForModal(null)}
         onUpdateContestant={onUpdateContestant}
       />

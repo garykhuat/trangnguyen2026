@@ -1,6 +1,6 @@
 {
   "name": "Trạng Nguyên 2026 - Tea & Tech",
-  "description": "Ứng dụng chấm điểm cuộc thi Trạng Nguyên 2026 - Tea & Tech cho 24 thí sinh với 10 giám khảo, phân chia vòng thi, khu vực và quản trị viên backend.",
+  "description": "Ứng dụng chấm điểm cuộc thi Trạng Nguyên 2026 - Tea & Tech cho 24 thí sinh với 5 giám khảo, phân chia vòng thi, khu vực và quản trị viên backend.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

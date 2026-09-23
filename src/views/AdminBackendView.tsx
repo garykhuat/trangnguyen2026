@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Settings,
   Eye,
@@ -86,6 +86,7 @@ export const AdminBackendView: React.FC<AdminBackendViewProps> = ({
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80',
   });
   const [judgeActionLoading, setJudgeActionLoading] = useState<string | null>(null);
+  const [judgeFilterStatus, setJudgeFilterStatus] = useState<'all' | 'active' | 'hidden'>('all');
 
   // Edit contestant state
   const [editingContestant, setEditingContestant] = useState<Contestant | null>(null);
@@ -224,6 +225,25 @@ export const AdminBackendView: React.FC<AdminBackendViewProps> = ({
   const activeJudges = judges.filter((j) => !j.hidden);
   const activeJudgeIds = activeJudges.map((j) => j.id);
 
+  const filteredJudges = useMemo(() => {
+    return judges.filter((j) => {
+      const q = searchQuery.trim().toLowerCase();
+      const matchesSearch =
+        q === '' ||
+        j.name.toLowerCase().includes(q) ||
+        j.code.toLowerCase().includes(q) ||
+        j.title.toLowerCase().includes(q);
+
+      const isHidden = Boolean(j.hidden);
+      const matchesStatus =
+        judgeFilterStatus === 'all' ||
+        (judgeFilterStatus === 'active' && !isHidden) ||
+        (judgeFilterStatus === 'hidden' && isHidden);
+
+      return matchesSearch && matchesStatus;
+    });
+  }, [judges, searchQuery, judgeFilterStatus]);
+
   const handleOpenEditJudge = (judge: Judge) => {
     setEditingJudge(judge);
     setEditJudgeFormData({
@@ -295,12 +315,23 @@ export const AdminBackendView: React.FC<AdminBackendViewProps> = ({
 
     scoredContestants.sort((a, b) => b.preliminaryScore - a.preliminaryScore);
 
-    // Keep top 12, hide bottom 12
+    // Keep top 12 visible, hide bottom 12
+    const top12 = scoredContestants.slice(0, 12);
+    for (const item of top12) {
+      const currentC = contestants.find((c) => c.id === item.id);
+      if (currentC?.hidden) {
+        await onToggleHidden(item.id, true); // unhide top 12
+      }
+    }
+
     const bottom12 = scoredContestants.slice(12);
     for (const item of bottom12) {
-      await onToggleHidden(item.id, false); // set to hidden = true
+      const currentC = contestants.find((c) => c.id === item.id);
+      if (!currentC?.hidden) {
+        await onToggleHidden(item.id, false); // hide bottom 12
+      }
     }
-    alert('Đã ẩn thành công 12 thí sinh có điểm thấp hơn. 12 thí sinh dẫn đầu sẽ hiển thị ở Vòng 3 & Vòng 4.');
+    alert('Đã cập nhật thành công: 12 thí sinh dẫn đầu sẽ hiển thị ở Vòng 3 & Vòng 4, 12 thí sinh còn lại đã được ẩn.');
   };
 
   // Quick photo upload handlers
@@ -702,7 +733,7 @@ export const AdminBackendView: React.FC<AdminBackendViewProps> = ({
                   </span>
                 </h3>
                 <p className="text-xs text-slate-600 max-w-3xl leading-relaxed">
-                  Nếu số lượng giám khảo chưa đủ 10 người hoặc có giám khảo chưa confirm tham gia, Quản trị viên có thể nhấn nút <strong className="text-rose-700">"Ẩn giám khảo"</strong>. Giám khảo bị ẩn sẽ không hiển thị trên tablet để chọn và <strong>không được tính vào điểm trung bình</strong> của thí sinh. Bạn cũng có thể sửa tên, chức danh và ảnh đại diện bất kỳ lúc nào.
+                  Quản trị viên có thể nhấn nút <strong className="text-rose-700">"Ẩn giám khảo"</strong> để tạm dừng quyền chấm của giám khảo vắng mặt. Giám khảo bị ẩn sẽ không hiển thị trên tablet để chọn và <strong>không được tính vào điểm trung bình</strong> của thí sinh. Bạn cũng có thể sửa tên, chức danh và ảnh đại diện bất kỳ lúc nào.
                 </p>
               </div>
             </div>
@@ -722,7 +753,14 @@ export const AdminBackendView: React.FC<AdminBackendViewProps> = ({
 
           {/* Quick Metrics Bar */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="bg-white p-4 rounded-2xl border border-slate-200 flex items-center justify-between">
+            <div
+              onClick={() => setJudgeFilterStatus(judgeFilterStatus === 'active' ? 'all' : 'active')}
+              className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+                judgeFilterStatus === 'active'
+                  ? 'bg-emerald-50/80 border-emerald-400 ring-2 ring-emerald-300 shadow-xs'
+                  : 'bg-white border-slate-200 hover:border-emerald-300'
+              } flex items-center justify-between`}
+            >
               <div>
                 <div className="text-xs text-slate-500 font-semibold">Giám khảo đang kích hoạt (Tính điểm)</div>
                 <div className="text-2xl font-black text-emerald-600 mt-0.5">{activeJudges.length} Giám khảo</div>
@@ -732,7 +770,14 @@ export const AdminBackendView: React.FC<AdminBackendViewProps> = ({
               </div>
             </div>
 
-            <div className="bg-white p-4 rounded-2xl border border-slate-200 flex items-center justify-between">
+            <div
+              onClick={() => setJudgeFilterStatus(judgeFilterStatus === 'hidden' ? 'all' : 'hidden')}
+              className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+                judgeFilterStatus === 'hidden'
+                  ? 'bg-amber-50/80 border-amber-400 ring-2 ring-amber-300 shadow-xs'
+                  : 'bg-white border-slate-200 hover:border-amber-300'
+              } flex items-center justify-between`}
+            >
               <div>
                 <div className="text-xs text-slate-500 font-semibold">Giám khảo tạm ẩn (Không tính điểm)</div>
                 <div className="text-2xl font-black text-amber-600 mt-0.5">{judges.filter((j) => j.hidden).length} Giám khảo</div>
@@ -753,6 +798,52 @@ export const AdminBackendView: React.FC<AdminBackendViewProps> = ({
             </div>
           </div>
 
+          {/* Judges Filter Bar */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200">
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-slate-500 font-semibold">Lọc danh sách:</span>
+              <div className="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200">
+                <button
+                  type="button"
+                  onClick={() => setJudgeFilterStatus('all')}
+                  className={`px-3 py-1 text-xs font-bold rounded-lg transition-colors cursor-pointer ${
+                    judgeFilterStatus === 'all'
+                      ? 'bg-white text-slate-900 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  Tất cả ({judges.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setJudgeFilterStatus('active')}
+                  className={`px-3 py-1 text-xs font-bold rounded-lg transition-colors cursor-pointer ${
+                    judgeFilterStatus === 'active'
+                      ? 'bg-white text-emerald-700 shadow-xs'
+                      : 'text-slate-600 hover:text-emerald-700'
+                  }`}
+                >
+                  Đang tham gia ({activeJudges.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setJudgeFilterStatus('hidden')}
+                  className={`px-3 py-1 text-xs font-bold rounded-lg transition-colors cursor-pointer ${
+                    judgeFilterStatus === 'hidden'
+                      ? 'bg-white text-rose-700 shadow-xs'
+                      : 'text-slate-600 hover:text-rose-700'
+                  }`}
+                >
+                  Đã ẩn ({judges.filter((j) => j.hidden).length})
+                </button>
+              </div>
+            </div>
+
+            <div className="text-xs text-slate-500">
+              Hiển thị <span className="font-bold text-slate-800">{filteredJudges.length}</span> / {judges.length} giám khảo
+            </div>
+          </div>
+
           {/* Judges Table */}
           <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
             <div className="overflow-x-auto">
@@ -768,9 +859,17 @@ export const AdminBackendView: React.FC<AdminBackendViewProps> = ({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {judges.map((judge) => {
-                    const isHidden = Boolean(judge.hidden);
-                    const isLoading = judgeActionLoading === judge.id;
+                  {filteredJudges.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="py-8 text-center text-slate-500">
+                        <Users className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+                        <p className="text-xs font-semibold">Không tìm thấy giám khảo phù hợp với bộ lọc hiện tại.</p>
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredJudges.map((judge) => {
+                      const isHidden = Boolean(judge.hidden);
+                      const isLoading = judgeActionLoading === judge.id;
 
                     return (
                       <tr
@@ -892,8 +991,9 @@ export const AdminBackendView: React.FC<AdminBackendViewProps> = ({
                         </td>
                       </tr>
                     );
-                  })}
-                </tbody>
+                  })
+                )}
+              </tbody>
               </table>
             </div>
           </div>
@@ -1072,7 +1172,7 @@ export const AdminBackendView: React.FC<AdminBackendViewProps> = ({
                 Ma Trận Điểm & Can Thiệp Chỉnh Sửa Điểm Giám Khảo
               </h3>
               <p className="text-xs text-slate-500 mt-0.5">
-                Xem toàn bộ các lượt chấm điểm từ 10 giám khảo. Ban tổ chức có quyền chỉnh sửa điểm số nếu phát hiện sai sót.
+                Xem toàn bộ các lượt chấm điểm từ Ban Giám Khảo ({activeJudges.length} đang chấm). Ban tổ chức có quyền chỉnh sửa điểm số nếu phát hiện sai sót.
               </p>
             </div>
 
@@ -1095,10 +1195,14 @@ export const AdminBackendView: React.FC<AdminBackendViewProps> = ({
                 onChange={(e) => setFilterJudge(e.target.value)}
                 className="px-3 py-2 rounded-xl border border-slate-300 text-xs font-bold bg-white"
               >
-                <option value="all">Tất cả 10 Giám khảo</option>
+                <option value="all">
+                  {judges.some((j) => j.hidden)
+                    ? `Tất cả ${activeJudges.length} Giám khảo đang chấm (${judges.length} tổng)`
+                    : `Tất cả ${activeJudges.length} Giám khảo`}
+                </option>
                 {judges.map((j) => (
                   <option key={j.id} value={j.id}>
-                    {j.code} - {j.name}
+                    {j.code} - {j.name} {j.hidden ? '(Đã ẩn)' : ''}
                   </option>
                 ))}
               </select>

@@ -59,7 +59,8 @@ export const Round1View: React.FC<Round1ViewProps> = ({
     setValidationErrors({});
   }, [activeJudgeId]);
 
-  const currentJudge = judges.find((j) => j.id === activeJudgeId) || judges[0];
+  const activeJudges = judges.filter((j) => !j.hidden);
+  const currentJudge = activeJudges.find((j) => j.id === activeJudgeId) || activeJudges[0] || judges[0];
 
   // 3 contestants in the currently selected region
   const regionContestants = contestants.filter((c) => c.regionId === selectedRegionId);
@@ -489,7 +490,7 @@ export const Round1View: React.FC<Round1ViewProps> = ({
                       <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
                         <div className="text-[11px] text-slate-500 font-medium">Tiến Độ Chấm Thi</div>
                         <div className="text-xl font-black text-slate-800 mt-0.5">
-                          {summary.round1Count}/10 GK
+                          {summary.round1Count}/{activeJudges.length} GK
                         </div>
                       </div>
                     </div>
@@ -530,6 +531,7 @@ export const Round1View: React.FC<Round1ViewProps> = ({
       <ContestantModal
         contestant={selectedContestantForModal}
         scores={scores}
+        totalJudgesCount={activeJudges.length}
         onClose={() => setSelectedContestantForModal(null)}
         onUpdateContestant={onUpdateContestant}
       />

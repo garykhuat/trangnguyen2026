@@ -21,6 +21,7 @@ interface HomeViewProps {
   scores: ScoreRecord[];
   activeJudgeId: string;
   onOpenJudgeSelector: () => void;
+  onSelectJudge?: (judgeId: string) => void;
   userRole: UserRole;
   onOpenAdminLogin?: () => void;
 }
@@ -32,6 +33,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   scores,
   activeJudgeId,
   onOpenJudgeSelector,
+  onSelectJudge,
   userRole,
   onOpenAdminLogin,
 }) => {
@@ -122,7 +124,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           <div>
             <div className="text-xs text-blue-200">Ban Giám Khảo</div>
             <div className="text-2xl font-black text-amber-300">
-              {activeJudges.length} {judges.some((j) => j.hidden) ? `(${judges.length})` : ''} Thành viên
+              {activeJudges.length} Giám Khảo
             </div>
           </div>
         </div>

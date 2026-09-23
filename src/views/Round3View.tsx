@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Award,
   Save,
@@ -62,8 +62,14 @@ export const Round3View: React.FC<Round3ViewProps> = ({
   const activeJudges = judges.filter((j) => !j.hidden);
   const currentJudge = activeJudges.find((j) => j.id === activeJudgeId) || activeJudges[0] || judges[0];
 
-  // CRITICAL REQUIREMENT: Thí sinh bị ẩn sẽ KHÔNG hiển thị ở trang vòng 3
-  const qualifiedContestants = contestants.filter((c) => !c.hidden);
+  // CRITICAL REQUIREMENT: Thí sinh bị ẩn sẽ KHÔNG hiển thị ở trang vòng 3 (sắp xếp theo SBD)
+  const qualifiedContestants = useMemo(() => {
+    return contestants
+      .filter((c) => !c.hidden)
+      .sort((a, b) =>
+        (a.sbd || '').localeCompare(b.sbd || '', undefined, { numeric: true, sensitivity: 'base' })
+      );
+  }, [contestants]);
   const hiddenCount = contestants.filter((c) => c.hidden).length;
 
   const handleScoreSelect = (contestantId: string, score: number) => {
@@ -170,7 +176,7 @@ export const Round3View: React.FC<Round3ViewProps> = ({
   return (
     <div className="space-y-6 max-w-7xl mx-auto py-2">
       {/* Round Header Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-[#002e75] to-[#0042A3] text-white p-5 sm:p-6 rounded-3xl shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-gradient-to-r from-slate-900 via-[#002e75] to-[#0042A3] text-white p-5 sm:p-6 rounded-3xl shadow-sm border border-blue-900/30">
         <div>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 text-blue-200 text-xs font-bold border border-white/20 mb-2">
             <Award className="w-3.5 h-3.5 text-blue-200" />
@@ -179,35 +185,9 @@ export const Round3View: React.FC<Round3ViewProps> = ({
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
             Vòng 3
           </h1>
-          <p className="text-xs sm:text-sm text-blue-100 mt-1 max-w-xl">
+          <p className="text-xs sm:text-sm text-blue-100 mt-1 max-w-2xl">
             Trang chỉ hiển thị các thí sinh xuất sắc lọt vào Vòng 3. Thí sinh bị ẩn/loại ở vòng trước đã được loại trừ tự động.
           </p>
-        </div>
-
-        {/* Current Judge info pill */}
-        <div className="bg-white/10 backdrop-blur-md px-4 py-3 rounded-2xl border border-white/20 flex items-center gap-3 shrink-0">
-          <img
-            src={currentJudge?.avatar}
-            alt={currentJudge?.name}
-            className="w-11 h-11 rounded-xl object-cover border border-white/40"
-            referrerPolicy="no-referrer"
-          />
-          <div>
-            <div className="text-[10px] uppercase font-bold text-blue-200">
-              Đang chấm bằng tài khoản:
-            </div>
-            <div className="text-sm font-extrabold text-white">
-              {currentJudge?.name} ({currentJudge?.code})
-            </div>
-            <button
-              type="button"
-              id="round3-switch-judge-btn"
-              onClick={onOpenJudgeSelector}
-              className="text-[11px] text-blue-200 hover:text-white underline cursor-pointer font-semibold"
-            >
-              Đổi giám khảo khác
-            </button>
-          </div>
         </div>
       </div>
 

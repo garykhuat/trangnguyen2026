@@ -139,6 +139,7 @@ export const AdminBackendView: React.FC<AdminBackendViewProps> = ({
 
   // New Contestant state
   const [newContestantData, setNewContestantData] = useState<Partial<Contestant>>({
+    sbd: '',
     name: '',
     title: '',
     department: 'Khối Phát Triển',
@@ -154,6 +155,7 @@ export const AdminBackendView: React.FC<AdminBackendViewProps> = ({
   const handleOpenEdit = (contestant: Contestant) => {
     setEditingContestant(contestant);
     setEditFormData({
+      sbd: contestant.sbd,
       name: contestant.name,
       title: contestant.title,
       department: contestant.department,
@@ -169,10 +171,28 @@ export const AdminBackendView: React.FC<AdminBackendViewProps> = ({
   const handleSaveContestantEdit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingContestant) return;
+    const cleanSbd = (editFormData.sbd || '').trim();
+    if (!cleanSbd) {
+      alert('Vui lòng nhập Số Báo Danh (SBD) cho thí sinh.');
+      return;
+    }
+    // Cảnh báo nếu trùng SBD với thí sinh khác
+    const duplicate = contestants.find(
+      (c) => c.id !== editingContestant.id && c.sbd.trim().toUpperCase() === cleanSbd.toUpperCase()
+    );
+    if (duplicate) {
+      const confirmDup = window.confirm(
+        `Cảnh báo: SBD "${cleanSbd}" đang trùng với thí sinh "${duplicate.name}". Bạn có chắc chắn muốn lưu SBD này không?`
+      );
+      if (!confirmDup) return;
+    }
     try {
-      await onUpdateContestant(editingContestant.id, editFormData);
+      await onUpdateContestant(editingContestant.id, {
+        ...editFormData,
+        sbd: cleanSbd,
+      });
       setEditingContestant(null);
-      alert('Đã cập nhật thông tin thí sinh thành công!');
+      alert('Đã cập nhật Số Báo Danh (SBD) và thông tin thí sinh thành công!');
     } catch (err) {
       alert('Có lỗi xảy ra khi cập nhật thông tin.');
     }
@@ -570,7 +590,7 @@ export const AdminBackendView: React.FC<AdminBackendViewProps> = ({
               <table className="w-full text-left text-sm">
                 <thead className="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-600 uppercase">
                   <tr>
-                    <th className="py-3.5 px-4">Thí Sinh</th>
+                    <th className="py-3.5 px-4">SBD & Thí Sinh (Thứ tự thi)</th>
                     <th className="py-3.5 px-4">Chức Danh & Phòng Ban</th>
                     <th className="py-3.5 px-4">Khu Vực</th>
                     <th className="py-3.5 px-4 text-center">Trạng Thái Vòng 3 & 4</th>
@@ -579,8 +599,17 @@ export const AdminBackendView: React.FC<AdminBackendViewProps> = ({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {contestants
-                    .filter((c) => c.name.toLowerCase().includes(searchQuery.toLowerCase()) || c.title.toLowerCase().includes(searchQuery.toLowerCase()) || c.sbd.toLowerCase().includes(searchQuery.toLowerCase()))
+                  {[...contestants]
+                    .filter(
+                      (c) =>
+                        c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        c.sbd.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        c.department.toLowerCase().includes(searchQuery.toLowerCase())
+                    )
+                    .sort((a, b) =>
+                      (a.sbd || '').localeCompare(b.sbd || '', undefined, { numeric: true, sensitivity: 'base' })
+                    )
                     .map((contestant) => (
                       <tr
                         key={contestant.id}
@@ -626,7 +655,7 @@ export const AdminBackendView: React.FC<AdminBackendViewProps> = ({
                             </div>
                             <div>
                               <div className="flex items-center gap-2">
-                                <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">
+                                <span className="text-xs font-black font-mono px-2 py-0.5 rounded-md bg-blue-100 text-[#0042A3] border border-blue-200 shadow-2xs">
                                   {contestant.sbd}
                                 </span>
                                 <label
@@ -702,9 +731,9 @@ export const AdminBackendView: React.FC<AdminBackendViewProps> = ({
                             type="button"
                             id={`edit-contestant-btn-${contestant.id}`}
                             onClick={() => handleOpenEdit(contestant)}
-                            className="px-3 py-1.5 rounded-lg border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-100 transition-colors inline-flex items-center gap-1 cursor-pointer"
+                            className="px-3 py-1.5 rounded-lg border border-blue-200 bg-blue-50/70 text-[#0042A3] hover:bg-blue-100 text-xs font-bold transition-colors inline-flex items-center gap-1.5 cursor-pointer shadow-2xs"
                           >
-                            <Edit className="w-3.5 h-3.5" /> Sửa thông tin
+                            <Edit className="w-3.5 h-3.5" /> Sửa SBD / Hồ sơ
                           </button>
                         </td>
                       </tr>
@@ -1309,15 +1338,31 @@ export const AdminBackendView: React.FC<AdminBackendViewProps> = ({
             Bổ Sung Thí Sinh Dự Thi Mới
           </h3>
           <p className="text-xs text-slate-500 mb-6">
-            Thêm thí sinh vào danh sách cuộc thi. Thí sinh mới sẽ tự động được cấp Số Báo Danh (SBD).
+            Thêm thí sinh vào danh sách cuộc thi. Bạn có thể tự đặt Số Báo Danh (SBD) hoặc để hệ thống tự động sinh số tiếp theo.
           </p>
 
           <form
             onSubmit={async (e) => {
               e.preventDefault();
               try {
-                await onAddContestant(newContestantData);
-                alert('Đã thêm thí sinh mới thành công!');
+                const sbdToUse = newContestantData.sbd?.trim() || `SBD-${String(contestants.length + 1).padStart(3, '0')}`;
+                await onAddContestant({
+                  ...newContestantData,
+                  sbd: sbdToUse,
+                });
+                alert(`Đã thêm thí sinh mới với ${sbdToUse} thành công!`);
+                setNewContestantData({
+                  sbd: '',
+                  name: '',
+                  title: '',
+                  department: 'Khối Phát Triển',
+                  region: 'Khu vực Miền Bắc',
+                  regionId: 1,
+                  avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80',
+                  bio: '',
+                  motto: '',
+                  strengths: ['Tư duy chiến lược', 'Giải quyết vấn đề'],
+                });
                 setActiveTab('contestants');
               } catch (err) {
                 alert('Lỗi khi thêm thí sinh.');
@@ -1325,7 +1370,22 @@ export const AdminBackendView: React.FC<AdminBackendViewProps> = ({
             }}
             className="space-y-4 text-sm"
           >
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+                  <span>Số Báo Danh (SBD)</span>
+                  <span className="text-[10px] text-blue-600 font-normal">(Tùy chọn)</span>
+                </label>
+                <input
+                  type="text"
+                  id="new-contestant-sbd"
+                  value={newContestantData.sbd || ''}
+                  onChange={(e) => setNewContestantData({ ...newContestantData, sbd: e.target.value })}
+                  placeholder={`Ví dụ: SBD-${String(contestants.length + 1).padStart(3, '0')}`}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-300 font-mono font-bold text-slate-900"
+                />
+              </div>
+
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
                   Họ và tên thí sinh *
@@ -1343,7 +1403,7 @@ export const AdminBackendView: React.FC<AdminBackendViewProps> = ({
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Chức danh / Vị trí chuyên môn *
+                  Chức danh / Vị trí *
                 </label>
                 <input
                   type="text"
@@ -1452,9 +1512,62 @@ export const AdminBackendView: React.FC<AdminBackendViewProps> = ({
             </div>
 
             <form onSubmit={handleSaveContestantEdit} className="p-6 space-y-4 text-sm">
+              {/* Highlighted SBD & Thứ tự thi card */}
+              <div className="p-4 bg-gradient-to-r from-blue-50/80 to-indigo-50/60 rounded-2xl border border-blue-200">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div>
+                    <label className="block text-xs font-black text-[#002e75] mb-1 flex items-center justify-between">
+                      <span>Số Báo Danh (SBD) *</span>
+                      <span className="text-[10px] text-blue-700 font-bold bg-blue-100/80 px-1.5 py-0.5 rounded">Thứ tự thi</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      id="edit-contestant-sbd"
+                      value={editFormData.sbd || ''}
+                      onChange={(e) => setEditFormData({ ...editFormData, sbd: e.target.value })}
+                      placeholder="Ví dụ: SBD-001, SBD-12,..."
+                      className="w-full px-3 py-2 rounded-xl border-2 border-blue-300 bg-white font-mono font-black text-slate-900 text-sm focus:border-[#0042A3] focus:ring-2 focus:ring-blue-400/30 outline-none"
+                    />
+                    <p className="text-[10px] text-blue-800/80 mt-1 font-medium leading-relaxed">
+                      SBD quyết định thứ tự thi và vị trí hiển thị của thí sinh trên tất cả các vòng.
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-black text-[#002e75] mb-1">
+                      Khu vực thi đấu
+                    </label>
+                    <select
+                      id="edit-contestant-region"
+                      value={editFormData.regionId || 1}
+                      onChange={(e) => {
+                        const regId = Number(e.target.value);
+                        const match = INITIAL_REGIONS.find((r) => r.id === regId);
+                        setEditFormData({
+                          ...editFormData,
+                          regionId: regId,
+                          region: match?.name || editFormData.region,
+                        });
+                      }}
+                      className="w-full px-3 py-2 rounded-xl border border-blue-300 bg-white font-semibold text-slate-800 text-sm focus:border-[#0042A3] outline-none"
+                    >
+                      {INITIAL_REGIONS.map((r) => (
+                        <option key={r.id} value={r.id}>
+                          {r.name}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="text-[10px] text-blue-800/80 mt-1 font-medium">
+                      Phân bổ thí sinh vào đúng bảng/khu vực thi đấu Vòng 1.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Họ và tên thí sinh
+                  Họ và tên thí sinh *
                 </label>
                 <input
                   type="text"

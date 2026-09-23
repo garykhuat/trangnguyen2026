@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Crown,
   Save,
@@ -63,8 +63,14 @@ export const Round4View: React.FC<Round4ViewProps> = ({
   const activeJudges = judges.filter((j) => !j.hidden);
   const currentJudge = activeJudges.find((j) => j.id === activeJudgeId) || activeJudges[0] || judges[0];
 
-  // Thí sinh lọt vào vòng 4: Chỉ hiển thị thí sinh KHÔNG BỊ ẨN
-  const qualifiedContestants = contestants.filter((c) => !c.hidden);
+  // Thí sinh lọt vào vòng 4: Chỉ hiển thị thí sinh KHÔNG BỊ ẨN (sắp xếp theo SBD)
+  const qualifiedContestants = useMemo(() => {
+    return contestants
+      .filter((c) => !c.hidden)
+      .sort((a, b) =>
+        (a.sbd || '').localeCompare(b.sbd || '', undefined, { numeric: true, sensitivity: 'base' })
+      );
+  }, [contestants]);
   const hiddenCount = contestants.filter((c) => c.hidden).length;
 
   const handleScoreSelect = (contestantId: string, score: number) => {
@@ -171,7 +177,7 @@ export const Round4View: React.FC<Round4ViewProps> = ({
   return (
     <div className="space-y-6 max-w-7xl mx-auto py-2">
       {/* Round 4 Gold Header Banner */}
-      <div className="bg-gradient-to-r from-amber-950 via-slate-900 to-yellow-950 text-white p-5 sm:p-6 rounded-3xl shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-amber-500/30">
+      <div className="bg-gradient-to-r from-amber-950 via-slate-900 to-yellow-950 text-white p-5 sm:p-6 rounded-3xl shadow-sm border border-amber-500/30">
         <div>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/30 text-amber-200 text-xs font-bold border border-amber-400/30 mb-2">
             <Crown className="w-3.5 h-3.5 text-amber-400" />
@@ -180,36 +186,10 @@ export const Round4View: React.FC<Round4ViewProps> = ({
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
             Vòng 4
           </h1>
-          <p className="text-xs sm:text-sm text-amber-100 mt-1 max-w-xl">
+          <p className="text-xs sm:text-sm text-amber-100 mt-1 max-w-2xl">
             Đánh giá phần thi quyết định của các thí sinh xuất sắc nhất lọt vào Chung kết.
             Các thí sinh bị loại ở các vòng trước đã được ẩn tự động.
           </p>
-        </div>
-
-        {/* Current Judge info pill */}
-        <div className="bg-white/10 backdrop-blur-md px-4 py-3 rounded-2xl border border-amber-400/30 flex items-center gap-3 shrink-0">
-          <img
-            src={currentJudge?.avatar}
-            alt={currentJudge?.name}
-            className="w-11 h-11 rounded-xl object-cover border border-amber-300"
-            referrerPolicy="no-referrer"
-          />
-          <div>
-            <div className="text-[10px] uppercase font-bold text-amber-300">
-              Đang chấm bằng tài khoản:
-            </div>
-            <div className="text-sm font-extrabold text-white">
-              {currentJudge?.name} ({currentJudge?.code})
-            </div>
-            <button
-              type="button"
-              id="round4-switch-judge-btn"
-              onClick={onOpenJudgeSelector}
-              className="text-[11px] text-amber-200 hover:text-white underline cursor-pointer font-semibold"
-            >
-              Đổi giám khảo khác
-            </button>
-          </div>
         </div>
       </div>
 

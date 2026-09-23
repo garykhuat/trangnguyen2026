@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   MapPin,
   Save,
@@ -62,8 +62,14 @@ export const Round1View: React.FC<Round1ViewProps> = ({
   const activeJudges = judges.filter((j) => !j.hidden);
   const currentJudge = activeJudges.find((j) => j.id === activeJudgeId) || activeJudges[0] || judges[0];
 
-  // 3 contestants in the currently selected region
-  const regionContestants = contestants.filter((c) => c.regionId === selectedRegionId);
+  // Contestants in the currently selected region (sorted by SBD for competition order)
+  const regionContestants = useMemo(() => {
+    return contestants
+      .filter((c) => c.regionId === selectedRegionId)
+      .sort((a, b) =>
+        (a.sbd || '').localeCompare(b.sbd || '', undefined, { numeric: true, sensitivity: 'base' })
+      );
+  }, [contestants, selectedRegionId]);
   const currentRegionMeta = INITIAL_REGIONS.find((r) => r.id === selectedRegionId) || INITIAL_REGIONS[0];
 
   const handleScoreSelect = (contestantId: string, score: number) => {
@@ -171,8 +177,8 @@ export const Round1View: React.FC<Round1ViewProps> = ({
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto py-2">
-      {/* Header & Judge Notice */}
-      <div className="bg-gradient-to-r from-slate-900 via-[#002e75] to-[#0042A3] text-white p-5 sm:p-6 rounded-3xl shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* Header Banner */}
+      <div className="bg-gradient-to-r from-slate-900 via-[#002e75] to-[#0042A3] text-white p-5 sm:p-6 rounded-3xl shadow-sm border border-blue-900/30">
         <div>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 text-blue-200 text-xs font-bold border border-white/20 mb-2">
             <Users className="w-3.5 h-3.5 text-blue-200" />
@@ -181,36 +187,10 @@ export const Round1View: React.FC<Round1ViewProps> = ({
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
             Vòng 1
           </h1>
-          <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-xl">
+          <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl">
             Mỗi khu vực gồm 3 thí sinh. Giám khảo chấm điểm từ 1 đến 10 cho từng thí sinh và nhấn "Lưu điểm".
             Hệ thống sẽ tự động tổng hợp điểm của tất cả giám khảo.
           </p>
-        </div>
-
-        {/* Current Judge info pill */}
-        <div className="bg-white/10 backdrop-blur-md px-4 py-3 rounded-2xl border border-white/20 flex items-center gap-3 shrink-0">
-          <img
-            src={currentJudge?.avatar}
-            alt={currentJudge?.name}
-            className="w-11 h-11 rounded-xl object-cover border border-white/40"
-            referrerPolicy="no-referrer"
-          />
-          <div>
-            <div className="text-[10px] uppercase font-bold text-blue-200">
-              Đang chấm bằng tài khoản:
-            </div>
-            <div className="text-sm font-extrabold text-white">
-              {currentJudge?.name} ({currentJudge?.code})
-            </div>
-            <button
-              type="button"
-              id="round1-switch-judge-btn"
-              onClick={onOpenJudgeSelector}
-              className="text-[11px] text-blue-200 hover:text-white underline cursor-pointer font-semibold"
-            >
-              Đổi giám khảo khác
-            </button>
-          </div>
         </div>
       </div>
 

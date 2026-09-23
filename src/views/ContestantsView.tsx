@@ -39,7 +39,9 @@ export const ContestantsView: React.FC<ContestantsViewProps> = ({
         (selectedStatus === 'hidden' && c.hidden);
 
       return matchesSearch && matchesRegion && matchesStatus;
-    });
+    }).sort((a, b) =>
+      (a.sbd || '').localeCompare(b.sbd || '', undefined, { numeric: true, sensitivity: 'base' })
+    );
   }, [contestants, searchQuery, selectedRegion, selectedStatus]);
 
   return (
@@ -114,6 +116,24 @@ export const ContestantsView: React.FC<ContestantsViewProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {filteredContestants.map((contestant) => {
           const summary = calculateContestantScores(contestant.id, scores);
+
+          // Điểm trung bình cho tất cả các vòng (tính trên các vòng đã chấm)
+          const activeRoundScores: number[] = [];
+          if (summary.round1Count > 0) activeRoundScores.push(summary.round1Average);
+          if (summary.round2Score > 0) activeRoundScores.push(summary.round2Score);
+          if (summary.round3Count > 0) activeRoundScores.push(summary.round3Average);
+          if (summary.round4Count > 0) activeRoundScores.push(summary.round4Average);
+
+          const allRoundsAverage =
+            activeRoundScores.length > 0
+              ? Number(
+                  (
+                    activeRoundScores.reduce((acc, val) => acc + val, 0) /
+                    activeRoundScores.length
+                  ).toFixed(2)
+                )
+              : 0;
+
           return (
             <div
               key={contestant.id}
@@ -175,9 +195,9 @@ export const ContestantsView: React.FC<ContestantsViewProps> = ({
               <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
                 <div className="flex items-center gap-1.5 text-xs text-slate-600">
                   <Award className="w-4 h-4 text-amber-500" />
-                  <span>Điểm TB V1:</span>
+                  <span>Điểm TB các vòng:</span>
                   <span className="font-bold text-slate-900">
-                    {summary.round1Count > 0 ? `${summary.round1Average}` : '0'}
+                    {allRoundsAverage > 0 ? `${allRoundsAverage}` : '0'}
                   </span>
                 </div>
 

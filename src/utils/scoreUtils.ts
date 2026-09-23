@@ -1,4 +1,10 @@
-import { ScoreRecord, ContestantRoundScoreSummary } from '../types.ts';
+import { ScoreRecord, ContestantRoundScoreSummary, Contestant } from '../types.ts';
+
+export function sortContestantsBySBD(list: Contestant[]): Contestant[] {
+  return [...list].sort((a, b) =>
+    (a.sbd || '').localeCompare(b.sbd || '', undefined, { numeric: true, sensitivity: 'base' })
+  );
+}
 
 export function calculateContestantScores(
   contestantId: string,

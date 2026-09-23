@@ -351,7 +351,7 @@ app.put('/api/contestants/:id', (req, res) => {
     ...existing,
     ...updateData,
     id: existing.id, // preserve original ID
-    sbd: updateData.sbd || existing.sbd,
+    sbd: updateData.sbd ? String(updateData.sbd).trim() : existing.sbd,
   };
 
   saveStore();
@@ -360,19 +360,19 @@ app.put('/api/contestants/:id', (req, res) => {
 
 // 9. Add new contestant (nếu ban tổ chức bổ sung)
 app.post('/api/contestants', (req, res) => {
-  const { name, title, department, region, regionId, avatar, bio, motto, strengths } = req.body;
+  const { sbd, name, title, department, region, regionId, avatar, bio, motto, strengths } = req.body;
 
   if (!name || !title) {
     return res.status(400).json({ error: 'Vui lòng nhập tên và chức danh thí sinh.' });
   }
 
   const nextNum = store.contestants.length + 1;
-  const sbd = `SBD-${String(nextNum).padStart(3, '0')}`;
+  const assignedSbd = sbd && String(sbd).trim() ? String(sbd).trim() : `SBD-${String(nextNum).padStart(3, '0')}`;
   const id = `TS${String(nextNum).padStart(2, '0')}`;
 
   const newContestant: Contestant = {
     id,
-    sbd,
+    sbd: assignedSbd,
     name,
     title,
     department: department || 'Khối Chuyên Môn',

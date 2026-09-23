@@ -38,16 +38,11 @@ export const HomeView: React.FC<HomeViewProps> = ({
   onOpenAdminLogin,
 }) => {
   const activeJudges = judges.filter((j) => !j.hidden);
-  const currentJudge = activeJudges.find((j) => j.id === activeJudgeId) || activeJudges[0] || judges[0];
 
   // Statistics
   const totalContestants = contestants.length;
   const activeContestants = contestants.filter((c) => !c.hidden).length;
   const hiddenContestants = contestants.filter((c) => c.hidden).length;
-
-  const currentJudgeScoresCount = scores.filter(
-    (s) => s.judgeId === activeJudgeId && s.round !== 2
-  ).length;
 
   return (
     <div className="space-y-8 max-w-6xl mx-auto py-2">
@@ -66,44 +61,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
             <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">
               Trạng Nguyên 2026 - Tea & Tech
             </h1>
-          </div>
-
-          {/* Active Judge Card */}
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 sm:p-5 border border-white/20 min-w-[280px]">
-            <div className="text-[11px] uppercase tracking-wider text-blue-200 font-bold mb-2 flex items-center justify-between">
-              <span>Giám Khảo Hiện Tại</span>
-              <button
-                type="button"
-                id="home-change-judge-btn"
-                onClick={onOpenJudgeSelector}
-                className="text-white hover:text-blue-200 underline text-xs font-semibold cursor-pointer"
-              >
-                Đổi giám khảo
-              </button>
-            </div>
-            <div className="flex items-center gap-3.5">
-              <img
-                src={currentJudge?.avatar}
-                alt={currentJudge?.name}
-                className="w-14 h-14 rounded-xl object-cover border-2 border-blue-300 shadow-md"
-                referrerPolicy="no-referrer"
-              />
-              <div>
-                <span className="text-xs font-black px-2 py-0.5 rounded bg-gradient-to-r from-[#0042A3] to-[#0060E6] text-white">
-                  {currentJudge?.code}
-                </span>
-                <div className="font-extrabold text-base text-white mt-1 leading-snug">
-                  {currentJudge?.name}
-                </div>
-                <div className="text-xs text-blue-100 line-clamp-1">
-                  {currentJudge?.title}
-                </div>
-              </div>
-            </div>
-            <div className="mt-3 pt-3 border-t border-white/10 text-xs text-slate-300 flex items-center justify-between">
-              <span>Đã chấm trên tablet này:</span>
-              <span className="font-bold text-emerald-400">{currentJudgeScoresCount} lượt chấm</span>
-            </div>
           </div>
         </div>
 

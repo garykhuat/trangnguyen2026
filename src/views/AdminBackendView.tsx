@@ -620,6 +620,9 @@ export const AdminBackendView: React.FC<AdminBackendViewProps> = ({
                       >
                         <td className="py-3 px-4">
                           <div className="flex items-center gap-3">
+                            <span className="text-xs font-bold font-mono px-2 py-1 rounded-md bg-slate-100 text-slate-700 border border-slate-200 shrink-0">
+                              {contestant.sbd}
+                            </span>
                             <div className="relative group shrink-0">
                               <img
                                 src={contestant.avatar}
@@ -654,20 +657,7 @@ export const AdminBackendView: React.FC<AdminBackendViewProps> = ({
                               )}
                             </div>
                             <div>
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs font-black font-mono px-2 py-0.5 rounded-md bg-blue-100 text-[#0042A3] border border-blue-200 shadow-2xs">
-                                  {contestant.sbd}
-                                </span>
-                                <label
-                                  htmlFor={`quick-avatar-file-${contestant.id}`}
-                                  className="text-[11px] font-semibold text-[#0042A3] hover:text-[#00388A] hover:underline cursor-pointer inline-flex items-center gap-1"
-                                  title="Tải ảnh chân dung từ máy tính"
-                                >
-                                  <Camera className="w-3 h-3" />
-                                  <span>Tải ảnh</span>
-                                </label>
-                              </div>
-                              <div className="font-bold text-slate-900 mt-0.5">
+                              <div className="font-bold text-slate-900">
                                 {contestant.name}
                               </div>
                             </div>
@@ -1496,149 +1486,157 @@ export const AdminBackendView: React.FC<AdminBackendViewProps> = ({
 
       {/* ===================== MODAL SỬA THÔNG TIN THÍ SINH ===================== */}
       {editingContestant && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto">
-          <div className="w-full max-w-xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden my-6">
-            <div className="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
-              <h3 className="font-extrabold text-base">
-                Chỉnh Sửa Thông Tin Thí Sinh: {editingContestant.name} ({editingContestant.sbd})
-              </h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-3 sm:p-4">
+          <div className="w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh] sm:max-h-[88vh]">
+            <div className="px-4 py-3 sm:px-5 sm:py-3.5 bg-slate-900 text-white flex items-center justify-between shrink-0">
+              <div className="min-w-0 pr-3">
+                <h3 className="font-extrabold text-sm sm:text-base truncate">
+                  Sửa Thông Tin: {editingContestant.name}
+                </h3>
+                <p className="text-[11px] text-blue-200 font-mono">
+                  {editingContestant.sbd} • {editingContestant.region || 'Khu vực'}
+                </p>
+              </div>
               <button
                 type="button"
                 onClick={() => setEditingContestant(null)}
-                className="text-slate-400 hover:text-white text-xs cursor-pointer"
+                className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors shrink-0 cursor-pointer"
+                title="Đóng cửa sổ"
               >
-                Hủy bỏ
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <form onSubmit={handleSaveContestantEdit} className="p-6 space-y-4 text-sm">
-              {/* Highlighted SBD & Thứ tự thi card */}
-              <div className="p-4 bg-gradient-to-r from-blue-50/80 to-indigo-50/60 rounded-2xl border border-blue-200">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <form onSubmit={handleSaveContestantEdit} className="flex flex-col flex-1 min-h-0 overflow-hidden text-xs sm:text-sm">
+              <div className="p-4 sm:p-5 space-y-3 overflow-y-auto flex-1 min-h-0">
+                {/* Highlighted SBD & Thứ tự thi card */}
+                <div className="p-3 bg-gradient-to-r from-blue-50/70 to-indigo-50/50 rounded-xl border border-blue-200">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div>
+                      <label className="block text-[11px] font-black text-[#002e75] mb-1 flex items-center justify-between">
+                        <span>Số Báo Danh (SBD) *</span>
+                        <span className="text-[9px] text-blue-700 font-bold bg-blue-100 px-1.5 py-0.5 rounded">Thứ tự thi</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        id="edit-contestant-sbd"
+                        value={editFormData.sbd || ''}
+                        onChange={(e) => setEditFormData({ ...editFormData, sbd: e.target.value })}
+                        placeholder="Ví dụ: SBD-001, SBD-12,..."
+                        className="w-full px-2.5 py-1.5 rounded-lg border-2 border-blue-300 bg-white font-mono font-bold text-slate-900 text-xs sm:text-sm focus:border-[#0042A3] focus:ring-1 focus:ring-blue-400/30 outline-none"
+                      />
+                      <p className="text-[10px] text-blue-800/80 mt-1 font-medium leading-tight">
+                        Quyết định thứ tự xuất hiện của thí sinh.
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-black text-[#002e75] mb-1">
+                        Khu vực thi đấu
+                      </label>
+                      <select
+                        id="edit-contestant-region"
+                        value={editFormData.regionId || 1}
+                        onChange={(e) => {
+                          const regId = Number(e.target.value);
+                          const match = INITIAL_REGIONS.find((r) => r.id === regId);
+                          setEditFormData({
+                            ...editFormData,
+                            regionId: regId,
+                            region: match?.name || editFormData.region,
+                          });
+                        }}
+                        className="w-full px-2.5 py-1.5 rounded-lg border border-blue-300 bg-white font-semibold text-slate-800 text-xs sm:text-sm focus:border-[#0042A3] outline-none"
+                      >
+                        {INITIAL_REGIONS.map((r) => (
+                          <option key={r.id} value={r.id}>
+                            {r.name}
+                          </option>
+                        ))}
+                      </select>
+                      <p className="text-[10px] text-blue-800/80 mt-1 font-medium leading-tight">
+                        Phân bổ vào bảng thi Vòng 1.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   <div>
-                    <label className="block text-xs font-black text-[#002e75] mb-1 flex items-center justify-between">
-                      <span>Số Báo Danh (SBD) *</span>
-                      <span className="text-[10px] text-blue-700 font-bold bg-blue-100/80 px-1.5 py-0.5 rounded">Thứ tự thi</span>
+                    <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                      Họ và tên thí sinh *
                     </label>
                     <input
                       type="text"
                       required
-                      id="edit-contestant-sbd"
-                      value={editFormData.sbd || ''}
-                      onChange={(e) => setEditFormData({ ...editFormData, sbd: e.target.value })}
-                      placeholder="Ví dụ: SBD-001, SBD-12,..."
-                      className="w-full px-3 py-2 rounded-xl border-2 border-blue-300 bg-white font-mono font-black text-slate-900 text-sm focus:border-[#0042A3] focus:ring-2 focus:ring-blue-400/30 outline-none"
+                      value={editFormData.name || ''}
+                      onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
+                      className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs sm:text-sm focus:border-[#0042A3] outline-none"
                     />
-                    <p className="text-[10px] text-blue-800/80 mt-1 font-medium leading-relaxed">
-                      SBD quyết định thứ tự thi và vị trí hiển thị của thí sinh trên tất cả các vòng.
-                    </p>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-black text-[#002e75] mb-1">
-                      Khu vực thi đấu
+                    <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                      Chức danh *
                     </label>
-                    <select
-                      id="edit-contestant-region"
-                      value={editFormData.regionId || 1}
-                      onChange={(e) => {
-                        const regId = Number(e.target.value);
-                        const match = INITIAL_REGIONS.find((r) => r.id === regId);
-                        setEditFormData({
-                          ...editFormData,
-                          regionId: regId,
-                          region: match?.name || editFormData.region,
-                        });
-                      }}
-                      className="w-full px-3 py-2 rounded-xl border border-blue-300 bg-white font-semibold text-slate-800 text-sm focus:border-[#0042A3] outline-none"
-                    >
-                      {INITIAL_REGIONS.map((r) => (
-                        <option key={r.id} value={r.id}>
-                          {r.name}
-                        </option>
-                      ))}
-                    </select>
-                    <p className="text-[10px] text-blue-800/80 mt-1 font-medium">
-                      Phân bổ thí sinh vào đúng bảng/khu vực thi đấu Vòng 1.
-                    </p>
+                    <input
+                      type="text"
+                      required
+                      value={editFormData.title || ''}
+                      onChange={(e) => setEditFormData({ ...editFormData, title: e.target.value })}
+                      className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs sm:text-sm focus:border-[#0042A3] outline-none"
+                    />
                   </div>
                 </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Họ và tên thí sinh *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={editFormData.name || ''}
-                  onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-300"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Chức danh
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={editFormData.title || ''}
-                    onChange={(e) => setEditFormData({ ...editFormData, title: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300"
-                  />
-                </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
                     Phòng ban
                   </label>
                   <input
                     type="text"
                     value={editFormData.department || ''}
                     onChange={(e) => setEditFormData({ ...editFormData, department: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300"
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs sm:text-sm focus:border-[#0042A3] outline-none"
+                  />
+                </div>
+
+                <div>
+                  <ImageUploadField
+                    id="edit-contestant-avatar"
+                    label="Ảnh đại diện (Upload hoặc dán link)"
+                    value={editFormData.avatar || ''}
+                    onChange={(avatar) => setEditFormData({ ...editFormData, avatar })}
+                    helperText="Chọn ảnh từ thiết bị hoặc dán URL ảnh (tự động nén tối ưu)"
+                    placeholderText="https://..."
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    Tiểu sử & Giới thiệu
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={editFormData.bio || ''}
+                    onChange={(e) => setEditFormData({ ...editFormData, bio: e.target.value })}
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs sm:text-sm focus:border-[#0042A3] outline-none resize-none"
                   />
                 </div>
               </div>
 
-              <div>
-                <ImageUploadField
-                  id="edit-contestant-avatar"
-                  label="Hình ảnh chân dung thí sinh (Upload tệp hoặc dán URL)"
-                  value={editFormData.avatar || ''}
-                  onChange={(avatar) => setEditFormData({ ...editFormData, avatar })}
-                  helperText="Hỗ trợ chọn ảnh từ máy, kéo thả hoặc dán link (tự động nén tối ưu)"
-                  placeholderText="https://..."
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Tiểu sử & Giới thiệu
-                </label>
-                <textarea
-                  rows={3}
-                  value={editFormData.bio || ''}
-                  onChange={(e) => setEditFormData({ ...editFormData, bio: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-300"
-                />
-              </div>
-
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+              <div className="px-4 py-3 sm:px-5 bg-slate-50 border-t border-slate-100 flex items-center justify-end gap-2.5 shrink-0">
                 <button
                   type="button"
                   onClick={() => setEditingContestant(null)}
-                  className="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-50 cursor-pointer"
+                  className="px-3.5 py-1.5 rounded-lg border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-white cursor-pointer"
                 >
                   Hủy
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#0042A3] to-[#005FE6] hover:from-[#00388A] hover:to-[#004EC4] text-white text-xs font-bold cursor-pointer transition-all shadow-xs"
+                  className="px-4 py-1.5 rounded-lg bg-gradient-to-r from-[#0042A3] to-[#005FE6] hover:from-[#00388A] hover:to-[#004EC4] text-white text-xs font-bold cursor-pointer transition-all shadow-xs"
                 >
                   Lưu Thay Đổi
                 </button>
@@ -1732,92 +1730,94 @@ export const AdminBackendView: React.FC<AdminBackendViewProps> = ({
 
       {/* ===================== MODAL CHỈNH SỬA THÔNG TIN GIÁM KHẢO ===================== */}
       {editingJudge && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-          <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden border border-slate-200">
-            <div className="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Users className="w-5 h-5 text-blue-400" />
-                <h3 className="font-extrabold text-base">
-                  Sửa Thông Tin {editingJudge.code}: {editingJudge.name}
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-3 sm:p-4">
+          <div className="bg-white w-full max-w-md sm:max-w-lg rounded-2xl shadow-2xl overflow-hidden border border-slate-200 flex flex-col max-h-[92vh] sm:max-h-[88vh]">
+            <div className="bg-slate-900 text-white px-4 py-3 sm:px-5 sm:py-3.5 flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-2 min-w-0 pr-2">
+                <Users className="w-4 h-4 text-blue-400 shrink-0" />
+                <h3 className="font-extrabold text-sm sm:text-base truncate">
+                  Sửa {editingJudge.code}: {editingJudge.name}
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setEditingJudge(null)}
-                className="text-slate-400 hover:text-white text-xs cursor-pointer p-1 rounded-lg hover:bg-slate-800 transition-colors"
+                className="text-slate-400 hover:text-white cursor-pointer p-1 rounded-lg hover:bg-slate-800 transition-colors shrink-0"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <form onSubmit={handleSaveJudgeEdit} className="p-6 space-y-4 text-sm">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Mã Giám Khảo (Cố định):
-                </label>
-                <input
-                  type="text"
-                  disabled
-                  value={editingJudge.code}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-100 text-slate-500 font-bold text-xs"
-                />
+            <form onSubmit={handleSaveJudgeEdit} className="flex flex-col flex-1 min-h-0 overflow-hidden text-xs sm:text-sm">
+              <div className="p-4 sm:p-5 space-y-3.5 overflow-y-auto flex-1 min-h-0">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    Mã Giám Khảo (Cố định):
+                  </label>
+                  <input
+                    type="text"
+                    disabled
+                    value={editingJudge.code}
+                    className="w-full px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-100 text-slate-500 font-bold text-xs"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    Họ và Tên Giám Khảo <span className="text-rose-500">*</span>:
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    id="edit-judge-name-input"
+                    value={editJudgeFormData.name}
+                    onChange={(e) => setEditJudgeFormData({ ...editJudgeFormData, name: e.target.value })}
+                    placeholder="Ví dụ: TS. Nguyễn Văn A..."
+                    className="w-full px-3 py-1.5 rounded-lg border border-slate-300 font-bold text-slate-900 text-xs sm:text-sm focus:border-blue-600 focus:outline-hidden"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    Chức Danh / Vai Trò / Ban Ngành:
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    id="edit-judge-title-input"
+                    value={editJudgeFormData.title}
+                    onChange={(e) => setEditJudgeFormData({ ...editJudgeFormData, title: e.target.value })}
+                    placeholder="Ví dụ: Giám đốc Khối Công nghệ..."
+                    className="w-full px-3 py-1.5 rounded-lg border border-slate-300 text-slate-800 text-xs sm:text-sm focus:border-blue-600 focus:outline-hidden"
+                  />
+                </div>
+
+                <div>
+                  <ImageUploadField
+                    id="edit-judge-avatar"
+                    label="Ảnh chân dung giám khảo"
+                    value={editJudgeFormData.avatar}
+                    onChange={(avatar) => setEditJudgeFormData({ ...editJudgeFormData, avatar })}
+                    helperText="Chọn ảnh từ thiết bị hoặc dán URL ảnh (tự động nén tối ưu)"
+                    placeholderText="https://..."
+                  />
+                </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Họ và Tên Giám Khảo <span className="text-rose-500">*</span>:
-                </label>
-                <input
-                  type="text"
-                  required
-                  id="edit-judge-name-input"
-                  value={editJudgeFormData.name}
-                  onChange={(e) => setEditJudgeFormData({ ...editJudgeFormData, name: e.target.value })}
-                  placeholder="Ví dụ: TS. Nguyễn Văn A..."
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 font-bold text-slate-900 text-sm focus:border-blue-600 focus:outline-hidden"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Chức Danh / Vai Trò / Ban Ngành:
-                </label>
-                <input
-                  type="text"
-                  required
-                  id="edit-judge-title-input"
-                  value={editJudgeFormData.title}
-                  onChange={(e) => setEditJudgeFormData({ ...editJudgeFormData, title: e.target.value })}
-                  placeholder="Ví dụ: Giám đốc Khối Công nghệ..."
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-800 text-sm focus:border-blue-600 focus:outline-hidden"
-                />
-              </div>
-
-              <div>
-                <ImageUploadField
-                  id="edit-judge-avatar"
-                  label="Ảnh chân dung giám khảo (Upload tệp hoặc dán URL)"
-                  value={editJudgeFormData.avatar}
-                  onChange={(avatar) => setEditJudgeFormData({ ...editJudgeFormData, avatar })}
-                  helperText="Hỗ trợ chọn ảnh từ máy tính/điện thoại, kéo thả hoặc dán link URL"
-                  placeholderText="https://..."
-                />
-              </div>
-
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+              <div className="flex items-center justify-end gap-2.5 px-4 py-3 sm:px-5 bg-slate-50 border-t border-slate-100 shrink-0">
                 <button
                   type="button"
                   onClick={() => setEditingJudge(null)}
-                  className="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-50 cursor-pointer"
+                  className="px-3.5 py-1.5 rounded-lg border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-white cursor-pointer"
                 >
                   Hủy
                 </button>
                 <button
                   type="submit"
                   disabled={judgeActionLoading === editingJudge.id}
-                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#0042A3] to-[#005FE6] hover:from-[#00388A] hover:to-[#004EC4] text-white text-xs font-bold cursor-pointer transition-all shadow-xs"
+                  className="px-4 py-1.5 rounded-lg bg-gradient-to-r from-[#0042A3] to-[#005FE6] hover:from-[#00388A] hover:to-[#004EC4] text-white text-xs font-bold cursor-pointer transition-all shadow-xs"
                 >
-                  {judgeActionLoading === editingJudge.id ? 'Đang lưu...' : 'Lưu Thay Đổi Giám Khảo'}
+                  {judgeActionLoading === editingJudge.id ? 'Đang lưu...' : 'Lưu Thay Đổi'}
                 </button>
               </div>
             </form>
